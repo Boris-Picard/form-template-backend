@@ -10,6 +10,9 @@ dotenv.config();
 // Créer une instance de l'application Express
 const app = express();
 
+app.use("/api/coin/", coinRoutes);
+app.use("/api/transactions/", transactionsRoutes);
+
 // Connexion à la base de données MongoDB
 mongoose
   .connect(process.env.MONGODB) // Utilisation de l'URI MongoDB définie dans le fichier .env

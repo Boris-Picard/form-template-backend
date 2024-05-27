@@ -9,7 +9,7 @@ const coinSchema = new Schema({
   },
   transactions: [
     {
-      type: Number,
+      type: Schema.Types.ObjectId,
       ref: "Transaction",
     },
   ],
