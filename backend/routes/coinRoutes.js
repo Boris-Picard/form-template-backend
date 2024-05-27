@@ -3,6 +3,6 @@ import { createCoin } from "../controllers/coinController.js";
 
 const router = express.Router();
 
-router.post("coin", createCoin);
+router.post("/", createCoin);
 
 export default router;
