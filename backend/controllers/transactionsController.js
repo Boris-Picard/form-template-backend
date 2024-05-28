@@ -1,6 +1,6 @@
 import transactionModel from "../models/transactionsModel.js";
 
-export const createCoin = async (req, res) => {
+export const createTransaction = async (req, res) => {
   const { quantity, price, spent, date } = req.body;
 
   if (!quantity) {
