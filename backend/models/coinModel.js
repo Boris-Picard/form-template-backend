@@ -15,6 +15,6 @@ const coinSchema = new Schema({
   ],
 });
 
-const Coin = mongoose.model("coin", coinSchema);
+const coin = mongoose.model("Coin", coinSchema);
 
-export default Coin;
+export default coin;

@@ -19,15 +19,13 @@ const transactionsSchema = new Schema({
     type: Date,
     required: true,
   },
-  coin: [
-    {
-      type: Schema.Types.ObjectId,
-      ref: "Coin",
-      required: true,
-    },
-  ],
+  coin: {
+    type: Schema.Types.ObjectId,
+    ref: "Coin",
+    required: true,
+  },
 });
 
-const transactions = mongoose.model("transactions", transactionsSchema);
+const transaction = mongoose.model("Transaction", transactionsSchema);
 
-export default transactions;
+export default transaction;
