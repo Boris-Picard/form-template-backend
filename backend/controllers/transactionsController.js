@@ -41,18 +41,31 @@ export const deleteTransaction = async (req, res) => {
   const { id } = req.params;
 
   try {
+    // Trouver et supprimer la transaction
     const transaction = await Transaction.findByIdAndDelete(id);
 
     if (!transaction) {
       return res.status(404).json({ message: "Transaction not found" });
     }
 
-    await Coin.updateOne(
-      { _id: transaction.coin },
-      { $pull: { transactions: transaction._id } }
+    // Mettre à jour le coin en supprimant la transaction de son tableau de transactions
+    const coin = await Coin.findByIdAndUpdate(
+      transaction.coin,
+      { $pull: { transactions: transaction._id } },
+      { new: true }
     );
 
-    res.status(200).json({ message: "Transaction deleted successfully" });
+    // Vérifier si le coin a d'autres transactions associées
+    if (coin.transactions.length === 0) {
+      // Si non, supprimer le coin
+      await Coin.findByIdAndDelete(coin._id);
+    }
+
+    res
+      .status(200)
+      .json({
+        message: "Transaction and associated coin deleted successfully",
+      });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
