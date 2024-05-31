@@ -73,7 +73,7 @@ export const getCoin = async (req, res) => {
   const { id } = req.params;
   // const { name, quantity, price, spent, date } = req.body;
   try {
-    const transaction = await Transaction.findById(id);
+    const transaction = await Transaction.findById(id).populate("coin", "name");
     res.status(200).json({ transaction });
   } catch (error) {
     res.status(500).json({ error: error.message });
