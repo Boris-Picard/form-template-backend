@@ -5,7 +5,7 @@ export const createCoin = async (req, res) => {
   const { name } = req.body;
 
   if (!name) {
-    return res.status(400).send({ message: "Selection d'un token requis !" });
+    return res.status(400).send({ error: "Selection d'un token requis !" });
   }
 
   try {
@@ -20,7 +20,7 @@ export const addTransactionToCoin = async (req, res) => {
   const { coinId, transactionData } = req.body;
 
   if (!coinId || !transactionData) {
-    return res.status(400).send({ message: "Coin ID et données de transaction requis !" });
+    return res.status(400).send({ error: "Coin ID et données de transaction requis !" });
   }
 
   try {
