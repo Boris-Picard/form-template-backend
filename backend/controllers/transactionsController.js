@@ -69,23 +69,48 @@ export const deleteTransaction = async (req, res) => {
   }
 };
 
-export const updateTransaction = async (req, res) => {
+export const getCoin = async (req, res) => {
   const { id } = req.params;
-  const { name, quantity, price, spent, date } = req.body;
-
+  // const { name, quantity, price, spent, date } = req.body;
   try {
-    const transaction = await Transaction.findByIdAndUpdate(
-      id,
-      { quantity, price, spent, date },
-      { new: true }
-    );
-    const coin = await Coin.findByIdAndUpdate(id, { name }, { new: true });
-
-    if (!transaction || !coin) {
-      res.status(404).json({ error: "Transaction not found" });
-    }
-    res.status(200).json(transaction && coin);
+    const transaction = await Transaction.findById(id);
+    res.status(200).json({ transaction });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
+
+// export const updateTransaction = async (req, res) => {
+//   const { id } = req.params;
+//   const { name, quantity, price, spent, date } = req.body;
+
+//   try {
+//     // Find the transaction by ID
+//     const transaction = await Transaction.findById(id);
+
+//     if (!transaction) {
+//       return res.status(404).json({ error: "Transaction not found" });
+//     }
+
+//     // Update the transaction
+//     transaction.quantity = quantity;
+//     transaction.price = price;
+//     transaction.spent = spent;
+//     transaction.date = date;
+//     await transaction.save();
+
+//     // Update the associated coin
+//     const coin = await Coin.findById(transaction.coin);
+
+//     if (!coin) {
+//       return res.status(404).json({ error: "Associated coin not found" });
+//     }
+
+//     coin.name = name;
+//     await coin.save();
+
+//     res.status(200).json({ transaction, coin });
+//   } catch (error) {
+//     res.status(500).json({ error: error.message });
+//   }
+// };
