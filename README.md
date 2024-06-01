@@ -80,13 +80,13 @@ This backend project complements the frontend part of the Multi-Step Form Projec
 1. **Clone the Repository:**
 
    ```bash
-   git clone https://github.com/your-username/backend-form-template.git
+   git clone https://github.com/your-username/form-template-backend.git
    ```
 
 2. **Install Dependencies:**
 
    ```bash
-   cd backend-form-template
+   cd form-template-backend
    npm install
    ```
 
@@ -109,7 +109,7 @@ This backend project complements the frontend part of the Multi-Step Form Projec
 ## Project Structure
 
 ```
-backend-form-template/
+form-template-backend/
 ├── controllers/
 │   ├── coinController.js
 │   └── transactionsController.js
