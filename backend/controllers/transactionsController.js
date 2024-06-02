@@ -81,7 +81,7 @@ export const getCoin = async (req, res) => {
 
 export const updateTransaction = async (req, res) => {
   const { id } = req.params;
-  const { name, quantity, price, spent, date } = req.body;
+  const { quantity, price, spent, date } = req.body;
 
   try {
     // Find the transaction by ID
@@ -97,16 +97,6 @@ export const updateTransaction = async (req, res) => {
     transaction.spent = spent;
     transaction.date = date;
     await transaction.save();
-
-    // Update the associated coin
-    const coin = await Coin.findById(transaction.coin);
-
-    if (!coin) {
-      return res.status(404).json({ error: "Associated coin not found" });
-    }
-
-    coin.name = name;
-    await coin.save();
 
     res.status(200).json({ transaction, coin });
   } catch (error) {
