@@ -45,14 +45,14 @@ export const updateCoin = async (req, res) => {
   const { id } = req.params;
   const { name } = req.body;
   try {
-    // Find the transaction by ID
+    // Find the coin by ID
     const coin = await Coin.findById(id);
 
     if (!coin) {
       return res.status(404).json({ error: "Coin not found" });
     }
 
-    // Update the transaction
+    // Update the coin
     coin.name = name;
 
     await coin.save();

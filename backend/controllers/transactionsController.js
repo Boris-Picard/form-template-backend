@@ -84,19 +84,36 @@ export const updateTransaction = async (req, res) => {
   const { quantity, price, spent, date } = req.body;
 
   try {
-    // Find the transaction by ID
-    const transaction = await Transaction.findById(id);
+    // Find the transaction by ID and update it
+    const transaction = await Transaction.findByIdAndUpdate(
+      id,
+      {
+        $set: {
+          ...(quantity !== undefined && { quantity }),
+          ...(price !== undefined && { price }),
+          ...(spent !== undefined && { spent }),
+          ...(date !== undefined && { date }),
+        },
+      },
+      { new: true } // Return the updated transaction
+    );
 
     if (!transaction) {
       return res.status(404).json({ error: "Transaction not found" });
     }
 
-    // Update the transaction
-    transaction.quantity = quantity;
-    transaction.price = price;
-    transaction.spent = spent;
-    transaction.date = date;
-    await transaction.save();
+    // Find the associated coin
+    const coin = await Coin.findById(transaction.coin);
+
+    if (!coin) {
+      return res.status(404).json({ error: "Associated coin not found" });
+    }
+
+    // Ensure the transaction ID is in the coin's transactions array
+    if (!coin.transactions.includes(transaction._id)) {
+      coin.transactions.push(transaction._id);
+      await coin.save();
+    }
 
     res.status(200).json({ transaction, coin });
   } catch (error) {
