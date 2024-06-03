@@ -13,8 +13,12 @@ dotenv.config();
 // Créer une instance de l'application Express
 const app = express();
 
-// Enable cors requests
-app.use(cors());
+// configuration cors
+const corsOptions = {
+  origin: ["https://api.coingecko.com/"],
+  optionsSuccessStatus: 200,
+};
+app.use(cors(corsOptions));
 
 // Middleware pour parser les requêtes JSON
 app.use(express.json());
