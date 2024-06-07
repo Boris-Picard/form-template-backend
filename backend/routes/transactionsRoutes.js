@@ -1,6 +1,7 @@
 import express from "express";
 import {
   createTransaction,
+  createOnlyTransaction,
   getCoins,
   getCoin,
   updateTransaction,
@@ -10,6 +11,7 @@ import {
 const router = express.Router();
 
 router.post("/", createTransaction);
+router.post("/:id", createOnlyTransaction);
 router.get("/", getCoins);
 router.get("/:id", getCoin);
 router.put("/:id", updateTransaction);
