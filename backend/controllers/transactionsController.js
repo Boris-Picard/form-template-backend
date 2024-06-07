@@ -50,9 +50,11 @@ export const createOnlyTransaction = async (req, res) => {
       coin: id,
     });
 
-    await Coin.findByIdAndUpdate(coinId, {
+    await Coin.findByIdAndUpdate(id, {
       $addToSet: { transactions: transaction._id },
     });
+
+    return res.status(200).json(transaction);
   } catch (error) {
     return res.status(400).json({ error: error.message });
   }
