@@ -29,11 +29,11 @@ export const createTransaction = async (req, res) => {
 };
 
 export const createOnlyTransaction = async (req, res) => {
-  const { id } = req.params;
-
+  const { name } = req.params.name;
+  console.log(name);
   const { quantity, price, spent, date } = req.body;
 
-  if (!id) {
+  if (!name) {
     return res.status(400).json({ error: "Coin required" });
   }
 
@@ -47,12 +47,9 @@ export const createOnlyTransaction = async (req, res) => {
       price,
       spent,
       date,
-      coin: id,
     });
 
-    await Coin.findByIdAndUpdate(id, {
-      $addToSet: { transactions: transaction._id },
-    });
+    await Coin.findOne({ name: name });
 
     return res.status(200).json(transaction);
   } catch (error) {

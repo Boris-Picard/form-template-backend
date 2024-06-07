@@ -11,10 +11,10 @@ import {
 const router = express.Router();
 
 router.post("/", createTransaction);
-router.post("/:id", createOnlyTransaction);
+router.post("/name/:name", createOnlyTransaction);
 router.get("/", getCoins);
 router.get("/:id", getCoin);
-router.put("/:id", updateTransaction);
+router.put("/id/:id", updateTransaction);
 router.delete("/:id", deleteTransaction);
 
 export default router;
