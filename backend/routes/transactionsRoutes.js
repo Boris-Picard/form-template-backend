@@ -13,7 +13,8 @@ const router = express.Router();
 router.post("/", createTransaction);
 router.post("/name/:name", createOnlyTransaction);
 router.get("/", getCoins);
-router.get("/:id", getCoin);
+router.get("/id/:id", getCoin);
+router.get("/name/:name", getCoin);
 router.put("/id/:id", updateTransaction);
 router.delete("/:id", deleteTransaction);
 

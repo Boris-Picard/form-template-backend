@@ -99,12 +99,25 @@ export const deleteTransaction = async (req, res) => {
 };
 
 export const getCoin = async (req, res) => {
-  const { id } = req.params;
-  try {
-    const transaction = await Transaction.findById(id).populate("coin", "name");
-    res.status(200).json({ transaction });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+  const { id, name } = req.params;
+  if (id) {
+    try {
+      const transaction = await Transaction.findById(id).populate(
+        "coin",
+        "name"
+      );
+      res.status(200).json({ transaction });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  } else if (name) {
+    try {
+      const coin = await Coin.find({ coin: name });
+      const transaction = await Transaction.find({ name: coin.name });
+      res.status(200).json({ transaction });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
   }
 };
 
