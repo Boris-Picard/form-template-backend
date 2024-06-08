@@ -112,9 +112,8 @@ export const getCoin = async (req, res) => {
     }
   } else if (name) {
     try {
-      const coin = await Coin.find({ coin: name });
-      const transaction = await Transaction.find({ name: coin.name });
-      res.status(200).json({ transaction });
+      const coin = await Coin.find({ name });
+      res.status(200).json({ coin });
     } catch (error) {
       res.status(500).json({ error: error.message });
     }
