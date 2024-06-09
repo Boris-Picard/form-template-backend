@@ -29,27 +29,29 @@ export const createTransaction = async (req, res) => {
 };
 
 export const createOnlyTransaction = async (req, res) => {
-  const { name } = req.params.name;
-  console.log(name);
-  const { quantity, price, spent, date } = req.body;
+  const { name } = req.params;
+  const { quantity, price, spent, date, coinId } = req.body;
 
   if (!name) {
     return res.status(400).json({ error: "Coin required" });
   }
 
-  if (!quantity || !price || !spent || !data) {
+  if (!quantity || !price || !spent || !date || !coinId) {
     return res.status(400).json({ error: "Tous les champs sont requis !" });
   }
-
+  
   try {
     const transaction = await Transaction.create({
       quantity,
       price,
       spent,
       date,
+      coin: coinId,
     });
 
-    await Coin.findOne({ name: name });
+    await Coin.findByIdAndUpdate(coinId, {
+      $addToSet: { transactions: transaction._id },
+    });
 
     return res.status(200).json(transaction);
   } catch (error) {
