@@ -39,7 +39,7 @@ export const createOnlyTransaction = async (req, res) => {
   if (!quantity || !price || !spent || !date || !coinId) {
     return res.status(400).json({ error: "Tous les champs sont requis !" });
   }
-  
+
   try {
     const transaction = await Transaction.create({
       quantity,
@@ -68,32 +68,30 @@ export const getCoins = async (req, res) => {
   }
 };
 
-export const deleteTransaction = async (req, res) => {
+export const deleteCoinAndTransactions = async (req, res) => {
   const { id } = req.params;
 
   try {
-    // Trouver et supprimer la transaction
-    const transaction = await Transaction.findByIdAndDelete(id);
+    // Trouver le coin
+    const coin = await Coin.findById(id).populate("transactions");
 
-    if (!transaction) {
-      return res.status(404).json({ error: "Transaction not found" });
+    if (!coin) {
+      return res.status(404).json({ error: "Coin not found" });
     }
 
-    // Mettre à jour le coin en supprimant la transaction de son tableau de transactions
-    const coin = await Coin.findByIdAndUpdate(
-      transaction.coin, // L'ID du coin à mettre à jour
-      { $pull: { transactions: transaction._id } }, // Retirer l'ID de la transaction du tableau transactions
-      { new: true } // Retourner le document mis à jour
-    );
+    // Récupérer toutes les transactions associées au coin
+    const transactions = coin.transactions;
 
-    // Vérifier si le coin a d'autres transactions associées
-    if (coin.transactions.length === 0) {
-      // Si non, supprimer le coin
-      await Coin.findByIdAndDelete(coin._id);
+    // Supprimer toutes les transactions associées
+    for (const transaction of transactions) {
+      await Transaction.findByIdAndDelete(transaction._id);
     }
+
+    // Supprimer le coin
+    await Coin.findByIdAndDelete(id);
 
     res.status(200).json({
-      success: "Transaction and associated coin deleted successfully",
+      success: "Coin and all associated transactions deleted successfully",
     });
   } catch (error) {
     res.status(500).json({ error: error.message });
