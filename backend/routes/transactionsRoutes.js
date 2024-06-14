@@ -6,6 +6,7 @@ import {
   getCoin,
   updateTransaction,
   deleteCoinAndTransactions,
+  deleteTransaction,
 } from "../controllers/transactionsController.js";
 
 const router = express.Router();
@@ -17,5 +18,6 @@ router.get("/id/:id", getCoin);
 router.get("/name/:name", getCoin);
 router.put("/id/:id", updateTransaction);
 router.delete("/:id", deleteCoinAndTransactions);
+router.delete("/id/delete/:id", deleteTransaction);
 
 export default router;
