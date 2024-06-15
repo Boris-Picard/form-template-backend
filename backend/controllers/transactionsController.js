@@ -183,6 +183,12 @@ export const deleteTransaction = async (req, res) => {
     await Coin.findByIdAndUpdate(transaction.coin, {
       $pull: { transactions: id },
     });
+    
+    // Vérifier si le coin n'a plus de transactions
+    const coin = await Coin.findById(transaction.coin);
+    if (coin.transactions.length === 0) {
+      await Coin.findByIdAndDelete(coin._id);
+    }
 
     res
       .status(200)
