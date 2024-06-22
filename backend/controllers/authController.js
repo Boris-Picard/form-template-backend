@@ -16,8 +16,23 @@ export const signUp = async (req, res) => {
   // }
 
   try {
+    
     const user = await User.create({ mail, password });
-    res.status(200).json({ user });
+
+    const token = await user.generateToken();
+
+    res.status(200).json({
+      token,
+      user: {
+        id: user._id,
+        mail: user.mail,
+        role: user.role,
+        transactions: user.transactions,
+        coins: user.coins,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
+      },
+    });
   } catch (error) {
     res.status(401).json({ error: error });
   }

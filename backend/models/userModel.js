@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import argon2 from "argon2";
+import jwt from "jsonwebtoken";
 
 const Schema = mongoose.Schema;
 
@@ -54,9 +55,18 @@ userSchema.pre("save", async function (next) {
   }
 });
 
+// Méthode pour comparer le mot de passe
 userSchema.methods.comparePassword = async function (password) {
-    // Utilise une fonction traditionnelle pour accéder à `this` qui fait référence à l'instance courante de l'utilisateur
+  // Utilise une fonction traditionnelle pour accéder à `this` qui fait référence à l'instance courante de l'utilisateur
   return argon2.verify(this.password, password);
+};
+
+// Méthode pour générer un token JWT
+userSchema.methods.generateToken = async function () {
+  // Utilise une fonction traditionnelle pour accéder à `this`
+  return jwt.sign({ mail: this.mail }, process.env.JWT_SECRET, {
+    expiresIn: "1h",
+  });
 };
 
 const user = mongoose.model("User", userSchema);
