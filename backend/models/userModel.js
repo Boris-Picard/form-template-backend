@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import argon2 from "argon2";
 
 const Schema = mongoose.Schema;
 
@@ -35,6 +36,28 @@ const userSchema = new Schema(
   },
   { timestamps: true }
 );
+
+userSchema.pre("save", async function (next) {
+  const user = this;
+
+  // Vérifie si le mot de passe a été modifié ou est nouveau
+  if (!user.isModified("password")) {
+    return next(); // Si non, passe au middleware suivant
+  }
+
+  try {
+    // Hachage du mot de passe avant de sauvegarder l'utilisateur
+    user.password = await argon2.hash(user.password);
+    next(); // Passe au middleware suivant après le hachage
+  } catch (error) {
+    next(error); // Passe l'erreur au middleware suivant en cas de problème
+  }
+});
+
+userSchema.methods.comparePassword = async function (password) {
+    // Utilise une fonction traditionnelle pour accéder à `this` qui fait référence à l'instance courante de l'utilisateur
+  return argon2.verify(this.password, password);
+};
 
 const user = mongoose.model("User", userSchema);
 

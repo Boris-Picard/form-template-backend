@@ -6,7 +6,7 @@ import process from "process"; // Objet global de processus Node.js
 import cors from "cors";
 import coinRoutes from "./routes/coinRoutes.js";
 import transactionsRoutes from "./routes/transactionsRoutes.js";
-import usersRoutes from "./routes/usersRoutes.js";
+import authRoutes from "./routes/authRoutes.js";
 
 // Charger les variables d'environnement à partir du fichier .env
 dotenv.config();
@@ -26,7 +26,7 @@ app.use(express.json());
 
 app.use("/api/coin/", coinRoutes);
 app.use("/api/transaction/", transactionsRoutes);
-app.use("/api/user/", usersRoutes);
+app.use("/api/auth/", authRoutes);
 
 // Gestion des erreurs pour les routes non trouvées
 app.use((req, res, next) => {
