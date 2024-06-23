@@ -37,6 +37,7 @@ export const signUp = async (req, res) => {
         coins: user.coins,
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,
+        password: user.password, // retour du mot de passe dans les données seulement pour les tests
       },
     });
   } catch (error) {
