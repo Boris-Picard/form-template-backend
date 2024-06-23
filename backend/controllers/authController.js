@@ -5,7 +5,7 @@ export const signUp = async (req, res) => {
   const { mail, password } = req.body;
 
   if (!mail || !password) {
-    res.status(401).json({ error: "All fields are required !" });
+    res.status(400).json({ error: "All fields are required !" });
     return;
   }
 
@@ -41,6 +41,46 @@ export const signUp = async (req, res) => {
       },
     });
   } catch (error) {
-    res.status(401).json({ error: error });
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+export const signIn = async (req, res) => {
+  const { mail, password } = req.body;
+
+  if (!mail || !password) {
+    return res.status(400).json({ error: "All fields are required !" });
+  }
+
+  try {
+    const user = await User.findOne({ mail });
+
+    if (!user) {
+      return res.status(401).json({ error: "Invalid email or password" });
+    }
+
+    const isOk = await user.comparePassword(password);
+
+    if (!isOk) {
+      return res.status(401).json({ error: "Invalid email or password" });
+    }
+
+    const token = await user.generateToken();
+    res.status(200).json({
+      message: "Successfully connected to website",
+      token,
+      user: {
+        id: user._id,
+        mail: user.mail,
+        role: user.role,
+        transactions: user.transactions,
+        coins: user.coins,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
+        password: user.password, // retour du mot de passe dans les données seulement pour les tests
+      },
+    });
+  } catch (error) {
+    res.status(500).json({ error: "Internal server error" });
   }
 };
