@@ -1,4 +1,4 @@
-import { signUp } from "../controllers/authController.js";
+import { signIn, signUp } from "../controllers/authController.js";
 import { jest } from "@jest/globals";
 import User from "../models/userModel.js";
 import userSchema from "../schemas/userSchema.js";
@@ -12,6 +12,7 @@ describe("User Controller - signUp", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     User.findOne = jest.fn();
+    User.Create = jest.fn();
     req = { body: { mail: "", password: "" } };
     res = {
       status: jest.fn().mockReturnThis(),
@@ -19,7 +20,7 @@ describe("User Controller - signUp", () => {
     };
   });
 
-  // Teste si le schéma de validation est valide
+  // Test si le schéma de validation est valide
   it("should return validation errors if email or password is invalid", async () => {
     // Prépare les données de requête avec un email invalide et un mot de passe trop court
     req.body = { mail: "invalid-email", password: "short" };
@@ -42,7 +43,7 @@ describe("User Controller - signUp", () => {
     );
   });
 
-  // Teste si un utilisateur existe déjà
+  // Test si un utilisateur existe déjà
   it("should return error if mail already exist", async () => {
     // Prépare les données de requête avec un email existant et un mot de passe valide
     req.body = { mail: "test@test.com", password: "validPassword123" };
@@ -59,5 +60,43 @@ describe("User Controller - signUp", () => {
     // Vérifie que la réponse a un statut 401 et retourne un objet JSON avec une erreur d'utilisateur existant
     expect(res.status).toHaveBeenCalledWith(401);
     expect(res.json).toHaveBeenCalledWith({ error: "User already exist" });
+  });
+
+  // Test que l'utilisateur est bien créer et les données envoyées sont correct
+  it("should create a new user and return all values needed", async () => {
+    req.body = { mail: "test@test.com", password: "validPassword123" };
+
+    User.findOne.mockResolvedValue(null);
+
+    const mockedUser = {
+      _id: "mocked_id",
+      mail: req.body.mail,
+      role: "user",
+      transactions: [],
+      coins: 0,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      password: req.body.password,
+      generateToken: jest.fn().mockResolvedValue("mocked_token"),
+    };
+
+    User.create.mockResolvedValue(mockedUser);
+
+    await signUp(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith({
+      token: "mocked_token",
+      user: {
+        id: "mocked_id",
+        mail: req.body.mail,
+        role: "user",
+        transactions: [],
+        coins: 0,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        password: req.body.password,
+      },
+    });
   });
 });
