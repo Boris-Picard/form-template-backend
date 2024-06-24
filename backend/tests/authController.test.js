@@ -24,7 +24,7 @@ describe("User Controller - signUp", () => {
     req.body.mail = "invalid-email";
     req.body.password = "short";
 
-    userSchema.parse.mockImplementation(() => {
+    userSchema.parse.mockImplementationOnce(() => {
       throw { errors: ["Email is invalid", "Password is too short"] };
     });
 
