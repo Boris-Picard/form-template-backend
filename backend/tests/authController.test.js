@@ -106,6 +106,7 @@ describe("User Controller - signIn", () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    User.findOne = jest.fn();
     req = { body: { mail: "", password: "" } };
     res = {
       status: jest.fn().mockReturnThis(),
@@ -136,4 +137,18 @@ describe("User Controller - signIn", () => {
     );
   });
 
+  // Test si un utilisateur n'existe pas
+  it("should return a 401 status if user doesnt exist", async () => {
+    req.body = { mail: "test@test.com", password: "validPassword123" };
+
+    User.findOne.mockImplementationOnce(null);
+
+    await signIn(req, res);
+
+    expect(User.findOne).toHaveBeenCalledWith({ mail: req.body.mail });
+    expect(res.status).toHaveBeenCalledWith(401);
+    expect(res.json).toHaveBeenCalledWith({
+      error: "Invalid email or password",
+    });
+  });
 });
