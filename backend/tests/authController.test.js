@@ -151,4 +151,24 @@ describe("User Controller - signIn", () => {
       error: "Invalid email or password",
     });
   });
+
+  it("should return an error if password is not ok", async () => {
+    req.body = { mail: "test@test.com", password: "validPassword123" };
+
+    const mockUser = {
+      mail: req.body.mail,
+      comparePassword: jest.fn().mockResolvedValue(false),
+    };
+
+    User.findOne.mockResolvedValue(mockUser);
+
+    await signIn(req, res);
+
+    expect(User.findOne).toHaveBeenCalledWith({ mail: req.body.mail });
+    expect(mockUser.comparePassword).toHaveBeenCalledWith(req.body.password);
+    expect(res.status).toHaveBeenCalledWith(401);
+    expect(res.json).toHaveBeenCalledWith({
+      error: "Invalid email or password",
+    });
+  });
 });
