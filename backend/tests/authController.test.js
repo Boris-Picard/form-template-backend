@@ -171,4 +171,43 @@ describe("User Controller - signIn", () => {
       error: "Invalid email or password",
     });
   });
+
+  // Test réussi de connexion
+  it("should successfully login and return user data with token", async () => {
+    req.body = { mail: "test@test.com", password: "validPassword123" };
+
+    const mockUser = {
+      _id: "mocked_id",
+      mail: req.body.mail,
+      role: "user",
+      transactions: [],
+      coins: 0,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      comparePassword: jest.fn().mockResolvedValue(true),
+      generateToken: jest.fn().mockResolvedValue("mocked_token"),
+    };
+
+    User.findOne.mockResolvedValue(mockUser);
+
+    await signIn(req, res);
+
+    expect(User.findOne).toHaveBeenCalledWith({ mail: req.body.mail });
+    expect(mockUser.comparePassword).toHaveBeenCalledWith(req.body.password);
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith({
+      message: "Successfully connected to website",
+      token: "mocked_token",
+      user: {
+        id: mockUser._id,
+        mail: mockUser.mail,
+        role: mockUser.role,
+        transactions: mockUser.transactions,
+        coins: mockUser.coins,
+        createdAt: mockUser.createdAt,
+        updatedAt: mockUser.updatedAt,
+        password: mockUser.password,
+      },
+    });
+  });
 });
