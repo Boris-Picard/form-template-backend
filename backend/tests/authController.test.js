@@ -93,10 +93,47 @@ describe("User Controller - signUp", () => {
         role: "user",
         transactions: [],
         coins: 0,
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        createdAt: mockedUser.createdAt,
+        updatedAt: mockedUser.updatedAt,
         password: req.body.password,
       },
     });
   });
+});
+
+describe("User Controller - signIn", () => {
+  let req, res;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    req = { body: { mail: "", password: "" } };
+    res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn(),
+    };
+  });
+
+  // Test si le schéma de validation est valide
+  it("should return validation errors if email or password is invalid", async () => {
+    // Prépare les données de requête avec un email invalide et un mot de passe trop court
+    req.body = { mail: "invalid-email", password: "short" };
+
+    // Mocke userSchema.parse pour générer une exception avec des erreurs spécifiques
+    // mockImplementationOnce au lieu de mockResolvedValue pour les exceptions
+    userSchema.parse.mockImplementationOnce(() => {
+      throw { errors: ["Email is invalid", "Password is too short"] };
+    });
+
+    // Appelle la fonction signUp avec les données de requête
+    await signIn(req, res);
+
+    // Vérifie que la réponse a un statut 400 et retourne un objet JSON contenant des erreurs
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({
+        error: expect.any(Array),
+      })
+    );
+  });
+
 });
