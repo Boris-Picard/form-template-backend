@@ -79,3 +79,20 @@ export const signIn = async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
+
+export const getUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!id) {
+      return res.status(400).json({ error: "User ID is required" });
+    }
+
+    const user = await User.findById(id).select("-password");
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+  } catch (error) {
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
