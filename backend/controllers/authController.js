@@ -81,8 +81,8 @@ export const signIn = async (req, res) => {
 };
 
 export const getUser = async (req, res) => {
+  const { id } = req.params;
   try {
-    const { id } = req.params;
     if (!id) {
       return res.status(400).json({ error: "User ID is required" });
     }
