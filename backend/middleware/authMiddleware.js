@@ -2,10 +2,10 @@ import jwt from "jsonwebtoken";
 import process from "process";
 
 const auth = (req, res, next) => {
-  const token = req.header("Authorization");
+  const token = req.header("Authorization")?.split(' ')[1];
+
   if (!token) {
-    res.status(401).json({ error: "No token, authorization denied" });
-    return;
+    return res.status(401).json({ error: "No token, authorization denied" });
   }
 
   try {

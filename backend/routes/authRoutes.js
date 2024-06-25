@@ -9,7 +9,7 @@ router.post("/signup", signUp);
 
 router.post("/signin", signIn);
 
-router.get("/user/:id", getUser, auth);
+router.get("/user/:id", auth, getUser);
 
 // seulement valable pour les tests et vider la collection
 router.delete("/deleteAllUsers", async (req, res) => {
