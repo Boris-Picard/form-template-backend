@@ -22,8 +22,14 @@ export const signUp = async (req, res) => {
 
     const token = await user.generateToken();
 
-    res.status(200).json({
-      token,
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "Strict",
+      maxAge: 24 * 60 * 60 * 1000,
+    });
+
+    res.status(201).json({
       user: {
         id: user._id,
         mail: user.mail,
