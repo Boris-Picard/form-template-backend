@@ -5,6 +5,7 @@ import {
   updateCoin,
 } from "../controllers/coinController.js";
 
+
 const router = express.Router();
 
 router.post("/", createCoin);

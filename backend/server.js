@@ -7,6 +7,7 @@ import cors from "cors";
 import coinRoutes from "./routes/coinRoutes.js";
 import transactionsRoutes from "./routes/transactionsRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
+import cookieParser from "cookie-parser";
 
 // Charger les variables d'environnement à partir du fichier .env
 dotenv.config();
@@ -17,9 +18,12 @@ const app = express();
 // configuration cors
 const corsOptions = {
   origin: ["http://localhost:5173"],
+  credentials: true,
   optionsSuccessStatus: 200,
 };
 app.use(cors(corsOptions));
+
+app.use(cookieParser());
 
 // Middleware pour parser les requêtes JSON
 app.use(express.json());
