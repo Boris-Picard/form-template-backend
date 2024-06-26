@@ -164,7 +164,8 @@ export const refreshToken = async (req, res) => {
       sameSite: "Strict",
       maxAge: 1 * 60 * 60 * 1000, // 1 hour
     });
-
+    
+    res.status(200).end();
   } catch (error) {
     res.status(401).json({ error: "Invalid refresh token" });
   }
