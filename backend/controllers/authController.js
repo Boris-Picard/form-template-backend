@@ -87,12 +87,8 @@ export const signIn = async (req, res) => {
 };
 
 export const getUser = async (req, res) => {
-  const { id } = req.params;
+  const { id } = req.user;
   try {
-    if (!id) {
-      return res.status(400).json({ error: "User ID is required" });
-    }
-
     const user = await User.findById(id).select("-password");
 
     if (!user) {
