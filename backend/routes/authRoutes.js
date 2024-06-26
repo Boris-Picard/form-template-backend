@@ -1,5 +1,10 @@
 import express from "express";
-import { signUp, signIn, getUser } from "../controllers/authController.js";
+import {
+  signUp,
+  signIn,
+  getUser,
+  logout,
+} from "../controllers/authController.js";
 import User from "../models/userModel.js";
 import auth from "../middleware/authMiddleware.js";
 
@@ -10,6 +15,8 @@ router.post("/signup", signUp);
 router.post("/signin", signIn);
 
 router.get("/user", auth, getUser);
+
+router.delete("/logout", logout);
 
 // seulement valable pour les tests et vider la collection
 router.delete("/deleteAllUsers", async (req, res) => {

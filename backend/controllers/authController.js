@@ -75,10 +75,9 @@ export const signIn = async (req, res) => {
       sameSite: "Strict",
       maxAge: 24 * 60 * 60 * 1000,
     });
-    
+
     res.status(200).json({
       message: "Successfully connected to website",
-      token,
       user: {
         id: user._id,
         mail: user.mail,
@@ -106,5 +105,20 @@ export const getUser = async (req, res) => {
     res.status(200).json(user);
   } catch (error) {
     res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+export const logout = async (req, res) => {
+  const token = req.cookies.token;
+
+  if (!token) {
+    return res.status(401).json({ error: "No token, authorization denied" });
+  }
+
+  try {
+    res.clearCookie("token");
+    res.status(200).send("Logout successful");
+  } catch (error) {
+    res.status(401).json({ error: error });
   }
 };
