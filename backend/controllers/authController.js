@@ -1,6 +1,7 @@
 import User from "../models/userModel.js";
 import userSchema from "../schemas/userSchema.js";
 import jwt from "jsonwebtoken";
+import process from "process";
 
 export const signUp = async (req, res) => {
   const { mail, password } = req.body;
@@ -146,17 +147,17 @@ export const refreshToken = async (req, res) => {
     return res
       .status(401)
       .json({ error: "No refresh token, authorization denied" });
-    }
-    try {
-      const decoded = jwt.verify(refreshToken, process.env.JWT_SECRET);
-      const user = await User.findById(decoded.id);
+  }
+
+  try {
+    const decoded = jwt.verify(refreshToken, process.env.JWT_SECRET);
+    const user = await User.findById(decoded.id);
 
     if (!user) {
       return res.status(401).json({ error: "User not found" });
     }
 
     const newToken = await user.generateToken();
-
     res.cookie("token", newToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
@@ -164,7 +165,6 @@ export const refreshToken = async (req, res) => {
       maxAge: 1 * 60 * 60 * 1000, // 1 hour
     });
 
-    res.status(200).json({ token: newToken });
   } catch (error) {
     res.status(401).json({ error: "Invalid refresh token" });
   }
