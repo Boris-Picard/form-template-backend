@@ -1,5 +1,6 @@
 import User from "../models/userModel.js";
 import userSchema from "../schemas/userSchema.js";
+import jwt from "jsonwebtoken";
 
 export const signUp = async (req, res) => {
   const { mail, password } = req.body;
@@ -20,13 +21,20 @@ export const signUp = async (req, res) => {
   try {
     const user = await User.create({ mail, password });
 
-    const token = await user.generateToken();
+    const refreshToken = await user.generateRefreshToken();
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "Strict",
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    });
 
+    const token = await user.generateToken();
     res.cookie("token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "Strict",
-      maxAge: 24 * 60 * 60 * 1000,
+      maxAge: 1 * 60 * 60 * 1000, // 1 hour
     });
 
     res.status(201).json({
@@ -67,13 +75,20 @@ export const signIn = async (req, res) => {
       return res.status(401).json({ error: "Invalid email or password" });
     }
 
-    const token = await user.generateToken();
+    const refreshToken = await user.generateRefreshToken();
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "Strict",
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    });
 
+    const token = await user.generateToken();
     res.cookie("token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "Strict",
-      maxAge: 24 * 60 * 60 * 1000,
+      maxAge: 1 * 60 * 60 * 1000, // 1 hour
     });
 
     res.status(200).json({
@@ -117,8 +132,40 @@ export const logout = async (req, res) => {
 
   try {
     res.clearCookie("token");
+    res.clearCookie("refreshToken");
     res.status(200).send("Logout successful");
   } catch (error) {
     res.status(401).json({ error: error });
+  }
+};
+
+export const refreshToken = async (req, res) => {
+  const { refreshToken } = req.cookies;
+
+  if (!refreshToken) {
+    return res
+      .status(401)
+      .json({ error: "No refresh token, authorization denied" });
+    }
+    try {
+      const decoded = jwt.verify(refreshToken, process.env.JWT_SECRET);
+      const user = await User.findById(decoded.id);
+
+    if (!user) {
+      return res.status(401).json({ error: "User not found" });
+    }
+
+    const newToken = await user.generateToken();
+
+    res.cookie("token", newToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "Strict",
+      maxAge: 1 * 60 * 60 * 1000, // 1 hour
+    });
+
+    res.status(200).json({ token: newToken });
+  } catch (error) {
+    res.status(401).json({ error: "Invalid refresh token" });
   }
 };

@@ -4,6 +4,7 @@ import {
   signIn,
   getUser,
   logout,
+  refreshToken,
 } from "../controllers/authController.js";
 import User from "../models/userModel.js";
 import auth from "../middleware/authMiddleware.js";
@@ -13,6 +14,8 @@ const router = express.Router();
 router.post("/signup", signUp);
 
 router.post("/signin", signIn);
+
+router.post("/refresh-token", refreshToken);
 
 router.get("/user", auth, getUser);
 
