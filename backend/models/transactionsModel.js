@@ -24,6 +24,12 @@ const transactionsSchema = new Schema({
     ref: "Coin",
     required: true,
   },
+  users: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+    },
+  ],
 });
 
 const transaction = mongoose.model("Transaction", transactionsSchema);

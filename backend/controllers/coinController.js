@@ -29,7 +29,7 @@ export const createCoin = async (req, res) => {
 };
 
 export const addTransactionToCoin = async (req, res) => {
-  const { coinId, transactionData } = req.body;
+  const { coinId, transactionData, userId } = req.body;
 
   if (!coinId || !transactionData) {
     return res
@@ -37,10 +37,19 @@ export const addTransactionToCoin = async (req, res) => {
       .json({ error: "Coin ID et données de transaction requis !" });
   }
 
+  if (!userId) {
+    return res.status(400).json({ error: "User ID requis !" });
+  }
+
   try {
     const transaction = await Transaction.create({
       ...transactionData,
       coin: coinId,
+      users: userId,
+    });
+
+    await User.findByIdAndUpdate(userId, {
+      $addToSet: { transactions: transaction._id },
     });
 
     await Coin.findByIdAndUpdate(coinId, {
