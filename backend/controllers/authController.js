@@ -151,8 +151,8 @@ export const refreshToken = async (req, res) => {
 
   try {
     const decoded = jwt.verify(refreshToken, process.env.JWT_SECRET);
-    const user = await User.findById(decoded.id);
-
+    const user = await User.findById(decoded.id).select("-password");
+    
     if (!user) {
       return res.status(401).json({ error: "User not found" });
     }
@@ -164,7 +164,7 @@ export const refreshToken = async (req, res) => {
       sameSite: "Strict",
       maxAge: 1 * 60 * 60 * 1000, // 1 hour
     });
-    
+
     res.status(200).end();
   } catch (error) {
     res.status(401).json({ error: "Invalid refresh token" });
