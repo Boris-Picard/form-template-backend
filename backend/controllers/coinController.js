@@ -1,15 +1,27 @@
 import Coin from "../models/coinModel.js";
 import Transaction from "../models/transactionsModel.js";
+import User from "../models/userModel.js";
 
 export const createCoin = async (req, res) => {
-  const { name } = req.body;
+  const { name, userId } = req.body;
 
   if (!name) {
-    return res.status(400).send({ error: "Selection d'un token requis !" });
+    return res.status(400).json({ error: "Selection d'un token requis !" });
+  }
+
+  if (!userId) {
+    return res.status(400).json({ error: "User id not found !" });
   }
 
   try {
-    const coin = await Coin.create({ name });
+    const coin = await Coin.create({ name, users: userId });
+
+    await User.findByIdAndUpdate(userId, {
+      $addToSet: {
+        coins: coin._id,
+      },
+    });
+
     res.status(200).json(coin);
   } catch (error) {
     res.status(400).json({ error: error.message });
@@ -22,7 +34,7 @@ export const addTransactionToCoin = async (req, res) => {
   if (!coinId || !transactionData) {
     return res
       .status(400)
-      .send({ error: "Coin ID et données de transaction requis !" });
+      .json({ error: "Coin ID et données de transaction requis !" });
   }
 
   try {

@@ -13,6 +13,12 @@ const coinSchema = new Schema({
       ref: "Transaction",
     },
   ],
+  users: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+    },
+  ],
 });
 
 const coin = mongoose.model("Coin", coinSchema);
