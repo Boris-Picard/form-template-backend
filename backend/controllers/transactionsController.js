@@ -86,25 +86,45 @@ export const getCoins = async (req, res) => {
 
 export const deleteCoinAndTransactions = async (req, res) => {
   const { id } = req.params;
+  const { id: idUser } = req.user;
 
+  if (!id || !idUser) {
+    return res.status(400).json({ error: "Coin or User ID not found" });
+  }
   try {
-    // Trouver le coin
-    const coin = await Coin.findById(id).populate("transactions");
+    const user = await User.findById(idUser);
+    if (!user) {
+      return res.status(404).json({ error: "User not found !" });
+    }
 
+    // Vérifier l'existence du coin et s'il est associé à cet utilisateur
+    const coin = await Coin.findOne({ _id: id, users: idUser }).populate(
+      "transactions"
+    );
     if (!coin) {
-      return res.status(404).json({ error: "Coin not found" });
+      return res
+        .status(404)
+        .json({ error: "Coin not found or not associated with this user" });
     }
 
-    // Récupérer toutes les transactions associées au coin
-    const transactions = coin.transactions;
+    // Récupérer les identifiants des transactions associées à ce coin
+    const transactionsIds = coin.transactions.map(
+      (transaction) => transaction._id
+    );
 
-    // Supprimer toutes les transactions associées
-    for (const transaction of transactions) {
-      await Transaction.findByIdAndDelete(transaction._id);
-    }
+    // Supprimer toutes les transactions associées à ce coin pour cet utilisateur
+    await Transaction.deleteMany({ coin: id, users: idUser });
+
+    // Mettre à jour l'utilisateur pour supprimer les transactions associées au coin
+    await User.findByIdAndUpdate(idUser, {
+      $pull: { transactions: { $in: transactionsIds } },
+    });
 
     // Supprimer le coin
     await Coin.findByIdAndDelete(id);
+
+    // Mettre à jour l'utilisateur pour supprimer la référence au coin
+    await User.findByIdAndUpdate(idUser, { $pull: { coins: id } });
 
     res.status(200).json({
       success: "Coin and all associated transactions deleted successfully",
