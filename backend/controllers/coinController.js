@@ -14,12 +14,23 @@ export const createCoin = async (req, res) => {
   }
 
   try {
-    const coin = await Coin.create({ name, users: userId });
+    // Vérifie si un coin avec le même nom existe déjà 
+    let coin = await Coin.findOne({ name });
 
+    if (!coin) {
+      // Si le coin n'existe pas, crée un nouveau coin
+      coin = await Coin.create({ name });
+    }
+
+    // Ajoute l'utilisateur à la liste des utilisateurs du coin si nécessaire
+    if (!coin.users.includes(userId)) {
+      coin.users.push(userId);
+      await coin.save();
+    }
+
+    // Ajoute le coin à la liste des coins de l'utilisateur
     await User.findByIdAndUpdate(userId, {
-      $addToSet: {
-        coins: coin._id,
-      },
+      $addToSet: { coins: coin._id },
     });
 
     res.status(200).json(coin);
