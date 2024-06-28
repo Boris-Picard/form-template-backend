@@ -3,7 +3,8 @@ import Transaction from "../models/transactionsModel.js";
 import User from "../models/userModel.js";
 
 export const createCoin = async (req, res) => {
-  const { name, userId } = req.body;
+  const { name } = req.body;
+  const { id: userId } = req.user;
 
   if (!name) {
     return res.status(400).json({ error: "Selection d'un token requis !" });
@@ -14,7 +15,7 @@ export const createCoin = async (req, res) => {
   }
 
   try {
-    // Vérifie si un coin avec le même nom existe déjà 
+    // Vérifie si un coin avec le même nom existe déjà
     let coin = await Coin.findOne({ name });
 
     if (!coin) {
@@ -40,7 +41,8 @@ export const createCoin = async (req, res) => {
 };
 
 export const addTransactionToCoin = async (req, res) => {
-  const { coinId, transactionData, userId } = req.body;
+  const { coinId, transactionData } = req.body;
+  const { id: userId } = req.user;
 
   if (!coinId || !transactionData) {
     return res

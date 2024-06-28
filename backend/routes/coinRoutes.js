@@ -4,9 +4,11 @@ import {
   addTransactionToCoin,
   updateCoin,
 } from "../controllers/coinController.js";
-
+import auth from "../middleware/authMiddleware.js";
 
 const router = express.Router();
+
+router.use(auth);
 
 router.post("/", createCoin);
 router.post("/transaction", addTransactionToCoin);
