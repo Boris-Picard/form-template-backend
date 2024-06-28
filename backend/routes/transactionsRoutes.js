@@ -8,12 +8,15 @@ import {
   deleteCoinAndTransactions,
   deleteTransaction,
 } from "../controllers/transactionsController.js";
+import auth from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
+router.use(auth);
+
 // router.post("/", createTransaction);
 router.post("/name/:name", createOnlyTransaction);
-router.get("/", getCoins);
+router.get("/:id/portfolio", getCoins);
 router.get("/id/:id", getCoin);
 router.get("/name/:name", getCoin);
 router.put("/id/:id", updateTransaction);

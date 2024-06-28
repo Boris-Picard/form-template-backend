@@ -1,5 +1,6 @@
 import Transaction from "../models/transactionsModel.js";
 import Coin from "../models/coinModel.js";
+import User from "../models/userModel.js";
 
 // export const createTransaction = async (req, res) => {
 //   const { quantity, price, spent, date, coinId } = req.body;
@@ -60,9 +61,19 @@ export const createOnlyTransaction = async (req, res) => {
 };
 
 export const getCoins = async (req, res) => {
+  const { id } = req.user;
+
+  if (!id) {
+    return res.status(400).json({ error: "User required" });
+  }
+
   try {
-    const transactions = await Transaction.find().populate("coin", "name");
-    res.status(200).json(transactions);
+    const user = await User.findById(id)
+      .populate("coins", "name")
+      .populate("transactions", ["quantity", "price", "spent", "date"]);
+
+    // const transactions = await Transaction.find().populate("coin", "name");
+    res.status(200).json(user);
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
@@ -189,7 +200,7 @@ export const deleteTransaction = async (req, res) => {
     if (coin.transactions.length === 0) {
       await Coin.findByIdAndDelete(coin._id);
     }
-    
+
     res
       .status(200)
       .json({ success: "Transaction deleted successfully and coin updated" });
