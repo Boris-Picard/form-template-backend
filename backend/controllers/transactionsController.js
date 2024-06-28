@@ -68,12 +68,15 @@ export const getCoins = async (req, res) => {
   }
 
   try {
-    const user = await User.findById(id)
-      .populate("coins", "name")
-      .populate("transactions", ["quantity", "price", "spent", "date"]);
+    const user = await User.findById(id);
 
-    // const transactions = await Transaction.find().populate("coin", "name");
-    res.status(200).json(user);
+    if (id == user._id) {
+      const transactions = await Transaction.find({ users: id }).populate(
+        "coin",
+        "name"
+      );
+      return res.status(200).json(transactions);
+    }
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
