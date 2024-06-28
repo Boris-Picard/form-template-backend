@@ -70,13 +70,15 @@ export const getCoins = async (req, res) => {
   try {
     const user = await User.findById(id);
 
-    if (id == user._id) {
-      const transactions = await Transaction.find({ users: id }).populate(
-        "coin",
-        "name"
-      );
-      return res.status(200).json(transactions);
+    if (!user) {
+      return res.status(404).json({ error: "User not found !" });
     }
+
+    const transactions = await Transaction.find({ users: id }).populate(
+      "coin",
+      "name"
+    );
+    return res.status(200).json(transactions);
   } catch (error) {
     res.status(400).json({ error: error.message });
   }

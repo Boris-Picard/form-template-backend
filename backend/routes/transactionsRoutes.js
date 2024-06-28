@@ -16,7 +16,7 @@ router.use(auth);
 
 // router.post("/", createTransaction);
 router.post("/name/:name", createOnlyTransaction);
-router.get("/:id/portfolio", getCoins);
+router.get("/portfolio", getCoins);
 router.get("/id/:id", getCoin);
 router.get("/name/:name", getCoin);
 router.put("/id/:id", updateTransaction);
