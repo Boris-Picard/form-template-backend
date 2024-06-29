@@ -4,15 +4,21 @@ import User from "../models/userModel.js";
 import {
   transactionSchema,
   coinSchema,
+  idSchema,
 } from "../schemas/transactionsSchema.js";
 
 export const createCoin = async (req, res) => {
-  const { error } = coinSchema.validate(req.body);
-  if (error) {
-    return res.status(400).json({ error: error.details[0].message });
-  }
   const { name } = req.body;
   const { id: userId } = req.user;
+
+  const { error: coinError } = coinSchema.validate(req.body);
+  const { error: userIdError } = idSchema.validate({ id: userId });
+  if (coinError) {
+    return res.status(400).json({ error: coinError.details[0].message });
+  }
+  if (userIdError) {
+    return res.status(400).json({ error: userIdError.details[0].message });
+  }
 
   if (!name) {
     return res.status(400).json({ error: "Selection d'un token requis !" });
@@ -49,12 +55,17 @@ export const createCoin = async (req, res) => {
 };
 
 export const addTransactionToCoin = async (req, res) => {
-  const { error } = transactionSchema.validate(req.body);
-  if (error) {
-    return res.status(400).json({ error: error.details[0].message });
-  }
   const { coinId, quantity, price, spent, date } = req.body;
   const { id: userId } = req.user;
+
+  const { error: coinError } = transactionSchema.validate(req.body);
+  const { error: userIdSchema } = idSchema.validate({ id: userId });
+  if (coinError) {
+    return res.status(400).json({ error: coinError.details[0].message });
+  }
+  if (userIdSchema) {
+    return res.status(400).json({ error: userIdSchema.details[0].message });
+  }
 
   if (!coinId || !quantity || !price || !spent || !date) {
     return res
@@ -92,11 +103,17 @@ export const addTransactionToCoin = async (req, res) => {
 
 export const updateCoin = async (req, res) => {
   const { id } = req.params;
-  const { error } = coinSchema.validate(req.body);
-  if (error) {
-    return res.status(400).json({ error: error.details[0].message });
-  }
   const { name } = req.body;
+
+  const { error: coinName } = coinSchema.validate(req.body);
+  const { error: idSchema } = idSchema.validate(req.params);
+  if (idSchema) {
+    return res.status(400).json({ error: idSchema.details[0].message });
+  }
+  if (coinName) {
+    return res.status(400).json({ error: coinName.details[0].message });
+  }
+
   try {
     // Find the coin by ID
     const coin = await Coin.findById(id);
