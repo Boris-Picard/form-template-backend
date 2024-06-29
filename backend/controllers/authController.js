@@ -1,15 +1,15 @@
 import User from "../models/userModel.js";
 import jwt from "jsonwebtoken";
 import process from "process";
-import { userSchema } from "../schemas/userSchema.js";
+import { userSchema, idUserSchema } from "../schemas/userSchema.js";
 
 export const signUp = async (req, res) => {
+  const { mail, password } = req.body;
+
   const { error } = userSchema.validate(req.body);
   if (error) {
     return res.status(400).json({ error: error.details[0].message });
   }
-
-  const { mail, password } = req.body;
 
   const existingUser = await User.findOne({ mail });
 
@@ -54,12 +54,12 @@ export const signUp = async (req, res) => {
 };
 
 export const signIn = async (req, res) => {
+  const { mail, password } = req.body;
+
   const { error } = userSchema.validate(req.body);
   if (error) {
     return res.status(400).json({ error: error.details[0].message });
   }
-
-  const { mail, password } = req.body;
 
   try {
     const user = await User.findOne({ mail });
@@ -109,6 +109,12 @@ export const signIn = async (req, res) => {
 
 export const getUser = async (req, res) => {
   const { id } = req.user;
+
+  const { error } = idUserSchema.validate({ id });
+  if (error) {
+    return res.status(400).json({ error: error.details[0].message });
+  }
+
   try {
     const user = await User.findById(id).select("-password");
 
