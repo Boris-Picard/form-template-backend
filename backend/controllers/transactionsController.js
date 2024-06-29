@@ -13,11 +13,17 @@ export const createOnlyTransaction = async (req, res) => {
   const { quantity, price, spent, date, coinId } = req.body;
   const { id } = req.user;
 
-  const { error } = transactionSchema.validate(req.body);
+  const { error: errorCoin } = transactionSchema.validate(req.body);
   const { error: errorName } = coinSchema.validate(req.params);
   const { error: errorIdUser } = idSchema.validate(req.user);
-  if (error || errorName || errorIdUser) {
-    return res.status(400).json({ error: error.details[0].message });
+  if (errorCoin) {
+    return res.status(400).json({ error: errorCoin.details[0].message });
+  }
+  if (errorName) {
+    return res.status(400).json({ error: errorName.details[0].message });
+  }
+  if (errorIdUser) {
+    return res.status(400).json({ error: errorIdUser.details[0].message });
   }
 
   if (!name) {
@@ -53,6 +59,7 @@ export const createOnlyTransaction = async (req, res) => {
 
 export const getCoins = async (req, res) => {
   const { id } = req.user;
+
   const { error } = idSchema.validate({ id });
   if (error) {
     return res.status(400).json({ error: error.details[0].message });
@@ -83,10 +90,13 @@ export const deleteCoinAndTransactions = async (req, res) => {
   const { id } = req.params;
   const { id: idUser } = req.user;
 
-  const { error } = idSchema.validate(req.params);
-  const { error: errorIdUser } = idSchema.validate(req.user);
-  if (error || errorIdUser) {
-    return res.status(400).json({ error: error.details[0].message });
+  const { error: errorId } = idSchema.validate(req.params);
+  const { error: errorIdUser } = idSchema.validate({ id: idUser });
+  if (errorId) {
+    return res.status(400).json({ error: errorId.details[0].message });
+  }
+  if (errorIdUser) {
+    return res.status(400).json({ error: errorIdUser.details[0].message });
   }
 
   if (!id || !idUser) {
@@ -152,10 +162,15 @@ export const deleteCoinAndTransactions = async (req, res) => {
 export const getCoin = async (req, res) => {
   const { id, name } = req.params;
 
-  const { error } = idSchema.validate({ id });
-  if (error) {
-    return res.status(400).json({ error: error.details[0].message });
+  const { error: errorId } = idSchema.validate({ id }); // a corriger
+  const { error: errorName } = coinSchema.validate({ name });
+  if (errorId) {
+    return res.status(400).json({ error: errorId.details[0].message });
   }
+  if (errorName) {
+    return res.status(400).json({ error: errorName.details[0].message });
+  }
+
   if (id) {
     try {
       const transaction = await Transaction.findById(id).populate(
@@ -179,11 +194,14 @@ export const getCoin = async (req, res) => {
 export const updateTransaction = async (req, res) => {
   const { id } = req.params;
   const { quantity, price, spent, date } = req.body;
-  
-  const { error } = updateTransactionSchema.validate(req.body);
-  const { error: idParams } = idSchema.validate(req.params);
-  if (error || idParams) {
-    return res.status(400).json({ error: error.details[0].message });
+
+  const { error: errorCoin } = updateTransactionSchema.validate(req.body);
+  const { error: errorId } = idSchema.validate(req.params);
+  if (errorCoin) {
+    return res.status(400).json({ error: errorCoin.details[0].message });
+  }
+  if (errorId) {
+    return res.status(400).json({ error: errorId.details[0].message });
   }
 
   try {
@@ -231,7 +249,7 @@ export const deleteTransaction = async (req, res) => {
   if (error) {
     return res.status(400).json({ error: error.details[0].message });
   }
-  
+
   try {
     if (!id) {
       return res.status(404).json({ error: "Transaction not found" });
