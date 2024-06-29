@@ -1,8 +1,16 @@
 import Coin from "../models/coinModel.js";
 import Transaction from "../models/transactionsModel.js";
 import User from "../models/userModel.js";
+import {
+  transactionSchema,
+  coinSchema,
+} from "../schemas/transactionsSchema.js";
 
 export const createCoin = async (req, res) => {
+  const { error } = coinSchema.validate(req.body);
+  if (error) {
+    return res.status(400).json({ error: error.details[0].message });
+  }
   const { name } = req.body;
   const { id: userId } = req.user;
 
@@ -41,10 +49,14 @@ export const createCoin = async (req, res) => {
 };
 
 export const addTransactionToCoin = async (req, res) => {
-  const { coinId, transactionData } = req.body;
+  const { error } = transactionSchema.validate(req.body);
+  if (error) {
+    return res.status(400).json({ error: error.details[0].message });
+  }
+  const { coinId, quantity, price, spent, date } = req.body;
   const { id: userId } = req.user;
 
-  if (!coinId || !transactionData) {
+  if (!coinId || !quantity || !price || !spent || !date) {
     return res
       .status(400)
       .json({ error: "Coin ID et données de transaction requis !" });
@@ -56,7 +68,10 @@ export const addTransactionToCoin = async (req, res) => {
 
   try {
     const transaction = await Transaction.create({
-      ...transactionData,
+      quantity: quantity,
+      price: price,
+      spent: spent,
+      date: date,
       coin: coinId,
       users: userId,
     });
@@ -77,6 +92,10 @@ export const addTransactionToCoin = async (req, res) => {
 
 export const updateCoin = async (req, res) => {
   const { id } = req.params;
+  const { error } = coinSchema.validate(req.body);
+  if (error) {
+    return res.status(400).json({ error: error.details[0].message });
+  }
   const { name } = req.body;
   try {
     // Find the coin by ID
