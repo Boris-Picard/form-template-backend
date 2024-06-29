@@ -13,19 +13,11 @@ export const createCoin = async (req, res) => {
 
   const { error: coinError } = coinSchema.validate(req.body);
   const { error: userIdError } = idSchema.validate({ id: userId });
-  if (coinError) {
-    return res.status(400).json({ error: coinError.details[0].message });
-  }
-  if (userIdError) {
-    return res.status(400).json({ error: userIdError.details[0].message });
-  }
 
-  if (!name) {
-    return res.status(400).json({ error: "Selection d'un token requis !" });
-  }
-
-  if (!userId) {
-    return res.status(400).json({ error: "User id not found !" });
+  if (coinError || userIdError) {
+    return res.status(400).json({
+      error: (coinError || userIdError).details[0].message,
+    });
   }
 
   try {
@@ -58,31 +50,21 @@ export const addTransactionToCoin = async (req, res) => {
   const { coinId, quantity, price, spent, date } = req.body;
   const { id: userId } = req.user;
 
-  const { error: coinError } = transactionSchema.validate(req.body);
-  const { error: userIdSchema } = idSchema.validate({ id: userId });
-  if (coinError) {
-    return res.status(400).json({ error: coinError.details[0].message });
-  }
-  if (userIdSchema) {
-    return res.status(400).json({ error: userIdSchema.details[0].message });
-  }
+  const { error: transactionError } = transactionSchema.validate(req.body);
+  const { error: userIdError } = idSchema.validate({ id: userId });
 
-  if (!coinId || !quantity || !price || !spent || !date) {
-    return res
-      .status(400)
-      .json({ error: "Coin ID et données de transaction requis !" });
-  }
-
-  if (!userId) {
-    return res.status(400).json({ error: "User ID requis !" });
+  if (transactionError || userIdError) {
+    return res.status(400).json({
+      error: (transactionError || userIdError).details[0].message,
+    });
   }
 
   try {
     const transaction = await Transaction.create({
-      quantity: quantity,
-      price: price,
-      spent: spent,
-      date: date,
+      quantity,
+      price,
+      spent,
+      date,
       coin: coinId,
       users: userId,
     });
@@ -105,26 +87,23 @@ export const updateCoin = async (req, res) => {
   const { id } = req.params;
   const { name } = req.body;
 
-  const { error: coinName } = coinSchema.validate(req.body);
-  const { error: idSchema } = idSchema.validate(req.params);
-  if (idSchema) {
-    return res.status(400).json({ error: idSchema.details[0].message });
-  }
-  if (coinName) {
-    return res.status(400).json({ error: coinName.details[0].message });
+  const { error: coinError } = coinSchema.validate(req.body);
+  const { error: idError } = idSchema.validate({ id });
+
+  if (coinError || idError) {
+    return res.status(400).json({
+      error: (coinError || idError).details[0].message,
+    });
   }
 
   try {
-    // Find the coin by ID
     const coin = await Coin.findById(id);
 
     if (!coin) {
       return res.status(404).json({ error: "Coin not found" });
     }
 
-    // Update the coin
     coin.name = name;
-
     await coin.save();
 
     res.status(200).json({ coin });
