@@ -6,6 +6,7 @@ export const createCoin = async (req, res) => {
   const { name } = req.body;
   const { id: userId } = req.user;
 
+
   if (!name) {
     return res.status(400).json({ error: "Selection d'un token requis !" });
   }

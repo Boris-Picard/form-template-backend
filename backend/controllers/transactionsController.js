@@ -32,6 +32,7 @@ import User from "../models/userModel.js";
 export const createOnlyTransaction = async (req, res) => {
   const { name } = req.params;
   const { quantity, price, spent, date, coinId } = req.body;
+  const { id } = req.user;
 
   if (!name) {
     return res.status(400).json({ error: "Coin required" });
@@ -39,6 +40,10 @@ export const createOnlyTransaction = async (req, res) => {
 
   if (!quantity || !price || !spent || !date || !coinId) {
     return res.status(400).json({ error: "Tous les champs sont requis !" });
+  }
+
+  if (!id) {
+    return res.status(400).json({ error: "User required" });
   }
 
   try {
