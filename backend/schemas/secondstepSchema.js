@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export default FormSchemaSecondStep = z.object({
+const FormSchemaSecondStep = z.object({
   quantity: z.coerce
     .number({
       message: "Please enter a number",
@@ -20,3 +20,5 @@ export default FormSchemaSecondStep = z.object({
     .date()
     .refine((date) => date <= new Date(), "Please enter a valid date"),
 });
+
+export default FormSchemaSecondStep;

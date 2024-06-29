@@ -1,11 +1,18 @@
 import Coin from "../models/coinModel.js";
 import Transaction from "../models/transactionsModel.js";
 import User from "../models/userModel.js";
+import FormSchemaFirstStep from "../schemas/firststepSchema.js";
+import FormSchemaSecondStep from "../schemas/secondstepSchema.js";
 
 export const createCoin = async (req, res) => {
   const { name } = req.body;
   const { id: userId } = req.user;
 
+  try {
+    FormSchemaFirstStep.parse({ name });
+  } catch (error) {
+    return res.status(400).json({ error: error.errors });
+  }
 
   if (!name) {
     return res.status(400).json({ error: "Selection d'un token requis !" });

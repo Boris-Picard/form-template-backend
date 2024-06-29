@@ -1,7 +1,7 @@
 import { z } from "zod";
 
-export default FormSchemaFirstStep = z.object({
-  coin: z
+const FormSchemaFirstStep = z.object({
+  name: z
     .string({
       required_error: "Please select a valid coin.",
     })
@@ -9,3 +9,5 @@ export default FormSchemaFirstStep = z.object({
       message: "Please select a coin",
     }),
 });
+
+export default FormSchemaFirstStep;
