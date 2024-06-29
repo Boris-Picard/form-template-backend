@@ -11,31 +11,16 @@ import {
 export const createOnlyTransaction = async (req, res) => {
   const { name } = req.params;
   const { quantity, price, spent, date, coinId } = req.body;
-  const { id } = req.user;
+  const { id: userId } = req.user;
 
-  const { error: errorCoin } = transactionSchema.validate(req.body);
-  const { error: errorName } = coinSchema.validate(req.params);
-  const { error: errorIdUser } = idSchema.validate(req.user);
-  if (errorCoin) {
-    return res.status(400).json({ error: errorCoin.details[0].message });
-  }
-  if (errorName) {
-    return res.status(400).json({ error: errorName.details[0].message });
-  }
-  if (errorIdUser) {
-    return res.status(400).json({ error: errorIdUser.details[0].message });
-  }
+  const { error: coinError } = transactionSchema.validate(req.body);
+  const { error: nameError } = coinSchema.validate(req.params);
+  const { error: userError } = idSchema.validate({ id: userId });
 
-  if (!name) {
-    return res.status(400).json({ error: "Coin required" });
-  }
-
-  if (!quantity || !price || !spent || !date || !coinId) {
-    return res.status(400).json({ error: "Tous les champs sont requis !" });
-  }
-
-  if (!id) {
-    return res.status(400).json({ error: "User required" });
+  if (coinError || nameError || userError) {
+    return res.status(400).json({
+      error: (coinError || nameError || userError).details[0].message,
+    });
   }
 
   try {
@@ -58,25 +43,21 @@ export const createOnlyTransaction = async (req, res) => {
 };
 
 export const getCoins = async (req, res) => {
-  const { id } = req.user;
+  const { id: userId } = req.user;
 
-  const { error } = idSchema.validate({ id });
+  const { error } = idSchema.validate({ id: userId });
   if (error) {
     return res.status(400).json({ error: error.details[0].message });
   }
 
-  if (!id) {
-    return res.status(400).json({ error: "User required" });
-  }
-
   try {
-    const user = await User.findById(id);
+    const user = await User.findById(userId);
 
     if (!user) {
-      return res.status(404).json({ error: "User not found !" });
+      return res.status(404).json({ error: "User not found!" });
     }
 
-    const transactions = await Transaction.find({ users: id }).populate(
+    const transactions = await Transaction.find({ users: userId }).populate(
       "coin",
       "name"
     );
@@ -87,29 +68,25 @@ export const getCoins = async (req, res) => {
 };
 
 export const deleteCoinAndTransactions = async (req, res) => {
-  const { id } = req.params;
-  const { id: idUser } = req.user;
+  const { id: coinId } = req.params;
+  const { id: userId } = req.user;
 
-  const { error: errorId } = idSchema.validate(req.params);
-  const { error: errorIdUser } = idSchema.validate({ id: idUser });
-  if (errorId) {
-    return res.status(400).json({ error: errorId.details[0].message });
-  }
-  if (errorIdUser) {
-    return res.status(400).json({ error: errorIdUser.details[0].message });
+  const { error: coinError } = idSchema.validate({ id: coinId });
+  const { error: userError } = idSchema.validate({ id: userId });
+
+  if (coinError || userError) {
+    return res.status(400).json({
+      error: (coinError || userError).details[0].message,
+    });
   }
 
-  if (!id || !idUser) {
-    return res.status(400).json({ error: "Coin or User ID not found" });
-  }
   try {
-    const user = await User.findById(idUser);
+    const user = await User.findById(userId);
     if (!user) {
-      return res.status(404).json({ error: "User not found !" });
+      return res.status(404).json({ error: "User not found!" });
     }
 
-    // Vérifier l'existence du coin et s'il est associé à cet utilisateur
-    const coin = await Coin.findOne({ _id: id, users: idUser }).populate(
+    const coin = await Coin.findOne({ _id: coinId, users: userId }).populate(
       "transactions"
     );
     if (!coin) {
@@ -118,37 +95,30 @@ export const deleteCoinAndTransactions = async (req, res) => {
         .json({ error: "Coin not found or not associated with this user" });
     }
 
-    // Récupérer les identifiants des transactions associées à ce coin pour cet utilisateur
     const userTransactions = coin.transactions.filter((transaction) =>
-      transaction.users.includes(idUser)
+      transaction.users.includes(userId)
     );
     const userTransactionIds = userTransactions.map(
       (transaction) => transaction._id
     );
 
-    // Supprimer toutes les transactions associées à ce coin pour cet utilisateur
     await Transaction.deleteMany({
       _id: { $in: userTransactionIds },
-      users: idUser,
+      users: userId,
+    });
+    await User.findByIdAndUpdate(userId, {
+      $pull: { transactions: { $in: userTransactionIds }, coins: coinId },
+    });
+    await Coin.findByIdAndUpdate(coinId, {
+      $pull: { users: userId, transactions: { $in: userTransactionIds } },
     });
 
-    // Mettre à jour l'utilisateur pour supprimer les transactions associées au coin
-    await User.findByIdAndUpdate(idUser, {
-      $pull: { transactions: { $in: userTransactionIds }, coins: id },
-    });
-
-    // Supprimer la référence de l'utilisateur dans le coin
-    await Coin.findByIdAndUpdate(id, {
-      $pull: { users: idUser, transactions: { $in: userTransactionIds } },
-    });
-
-    // Vérifier si le coin n'a plus d'utilisateurs ou de transactions
-    const remainingCoin = await Coin.findById(id).populate("transactions");
+    const remainingCoin = await Coin.findById(coinId).populate("transactions");
     if (
       remainingCoin.users.length === 0 &&
       remainingCoin.transactions.length === 0
     ) {
-      await Coin.findByIdAndDelete(id);
+      await Coin.findByIdAndDelete(coinId);
     }
 
     res.status(200).json({
@@ -162,32 +132,28 @@ export const deleteCoinAndTransactions = async (req, res) => {
 export const getCoin = async (req, res) => {
   const { id, name } = req.params;
 
-  const { error: errorId } = idSchema.validate({ id }); // a corriger
-  const { error: errorName } = coinSchema.validate({ name });
-  if (errorId) {
-    return res.status(400).json({ error: errorId.details[0].message });
-  }
-  if (errorName) {
-    return res.status(400).json({ error: errorName.details[0].message });
+  const { error: idError } = idSchema.validate({ id }); // a corriger
+  const { error: nameError } = coinSchema.validate({ name });
+
+  if (idError || nameError) {
+    return res
+      .status(400)
+      .json({ error: (idError || nameError).details[0].message });
   }
 
-  if (id) {
-    try {
+  try {
+    if (id) {
       const transaction = await Transaction.findById(id).populate(
         "coin",
         "name"
       );
       res.status(200).json({ transaction });
-    } catch (error) {
-      res.status(500).json({ error: error.message });
-    }
-  } else if (name) {
-    try {
+    } else if (name) {
       const coin = await Coin.find({ name });
       res.status(200).json({ coin });
-    } catch (error) {
-      res.status(500).json({ error: error.message });
     }
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 };
 
@@ -195,42 +161,40 @@ export const updateTransaction = async (req, res) => {
   const { id } = req.params;
   const { quantity, price, spent, date } = req.body;
 
-  const { error: errorCoin } = updateTransactionSchema.validate(req.body);
-  const { error: errorId } = idSchema.validate(req.params);
-  if (errorCoin) {
-    return res.status(400).json({ error: errorCoin.details[0].message });
-  }
-  if (errorId) {
-    return res.status(400).json({ error: errorId.details[0].message });
+  const { error: transactionError } = updateTransactionSchema.validate(
+    req.body
+  );
+  const { error: idError } = idSchema.validate({ id });
+
+  if (transactionError || idError) {
+    return res
+      .status(400)
+      .json({ error: (transactionError || idError).details[0].message });
   }
 
   try {
-    // Find the transaction by ID and update it
     const transaction = await Transaction.findByIdAndUpdate(
       id,
       {
         $set: {
-          ...(quantity !== undefined && { quantity }),
-          ...(price !== undefined && { price }),
-          ...(spent !== undefined && { spent }),
-          ...(date !== undefined && { date }),
+          ...(quantity && { quantity }),
+          ...(price && { price }),
+          ...(spent && { spent }),
+          ...(date && { date }),
         },
       },
-      { new: true } // Return the updated transaction
+      { new: true }
     );
 
     if (!transaction) {
       return res.status(404).json({ error: "Transaction not found" });
     }
 
-    // Find the associated coin
     const coin = await Coin.findById(transaction.coin);
-
     if (!coin) {
       return res.status(404).json({ error: "Associated coin not found" });
     }
 
-    // Ensure the transaction ID is in the coin's transactions array
     if (!coin.transactions.includes(transaction._id)) {
       coin.transactions.push(transaction._id);
       await coin.save();
@@ -245,32 +209,22 @@ export const updateTransaction = async (req, res) => {
 export const deleteTransaction = async (req, res) => {
   const { id } = req.params;
 
-  const { error } = idSchema.validate(req.params);
+  const { error } = idSchema.validate({ id });
   if (error) {
     return res.status(400).json({ error: error.details[0].message });
   }
 
   try {
-    if (!id) {
-      return res.status(404).json({ error: "Transaction not found" });
-    }
-
-    // Trouver la transaction par son ID
     const transaction = await Transaction.findById(id);
-
     if (!transaction) {
       return res.status(404).json({ error: "Transaction not found" });
     }
 
-    // Supprimer la transaction de la base de données
     await Transaction.findByIdAndDelete(id);
-
-    // Mettre à jour le coin pour retirer l'ID de la transaction
     await Coin.findByIdAndUpdate(transaction.coin, {
       $pull: { transactions: id },
     });
 
-    // Vérifier si le coin n'a plus de transactions
     const coin = await Coin.findById(transaction.coin);
     if (coin.transactions.length === 0) {
       await Coin.findByIdAndDelete(coin._id);
