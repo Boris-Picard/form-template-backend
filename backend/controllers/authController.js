@@ -12,10 +12,8 @@ export const signUp = async (req, res) => {
   }
 
   const existingUser = await User.findOne({ mail });
-
   if (existingUser) {
-    res.status(401).json({ error: "User already exist" });
-    return;
+    return res.status(401).json({ error: "User already exists" });
   }
 
   try {
@@ -63,13 +61,11 @@ export const signIn = async (req, res) => {
 
   try {
     const user = await User.findOne({ mail });
-
     if (!user) {
       return res.status(401).json({ error: "Invalid email or password" });
     }
 
     const isOk = await user.comparePassword(password);
-
     if (!isOk) {
       return res.status(401).json({ error: "Invalid email or password" });
     }
@@ -91,7 +87,7 @@ export const signIn = async (req, res) => {
     });
 
     res.status(200).json({
-      message: "Successfully connected to website",
+      message: "Successfully connected to the website",
       user: {
         id: user._id,
         mail: user.mail,
@@ -117,7 +113,6 @@ export const getUser = async (req, res) => {
 
   try {
     const user = await User.findById(id).select("-password");
-
     if (!user) {
       return res.status(404).json({ error: "User not found" });
     }
@@ -129,18 +124,12 @@ export const getUser = async (req, res) => {
 };
 
 export const logout = async (req, res) => {
-  const token = req.cookies.token;
-
-  if (!token) {
-    return res.status(401).json({ error: "No token, authorization denied" });
-  }
-
   try {
     res.clearCookie("token");
     res.clearCookie("refreshToken");
     res.status(200).send("Logout successful");
   } catch (error) {
-    res.status(401).json({ error: error });
+    res.status(500).json({ error: "Internal server error" });
   }
 };
 
