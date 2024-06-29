@@ -22,3 +22,7 @@ export const updateTransactionSchema = Joi.object({
 export const idSchema = Joi.object({
   id: Joi.string().hex().length(24).required(),
 });
+
+export const idGetCoinSchema = Joi.object({
+  id: Joi.string().hex().length(24),
+});

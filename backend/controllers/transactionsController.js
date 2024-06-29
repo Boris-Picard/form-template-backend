@@ -6,6 +6,7 @@ import {
   idSchema,
   transactionSchema,
   updateTransactionSchema,
+  idGetCoinSchema,
 } from "../schemas/transactionsSchema.js";
 
 export const createOnlyTransaction = async (req, res) => {
@@ -132,7 +133,7 @@ export const deleteCoinAndTransactions = async (req, res) => {
 export const getCoin = async (req, res) => {
   const { id, name } = req.params;
 
-  const { error: idError } = idSchema.validate({ id }); // a corriger
+  const { error: idError } = idGetCoinSchema.validate({ id }); 
   const { error: nameError } = coinSchema.validate({ name });
 
   if (idError || nameError) {
