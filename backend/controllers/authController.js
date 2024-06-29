@@ -1,8 +1,14 @@
 import User from "../models/userModel.js";
 import jwt from "jsonwebtoken";
 import process from "process";
+import { userSchema } from "../schemas/userSchema.js";
 
 export const signUp = async (req, res) => {
+  const { error } = userSchema.validate(req.body);
+  if (error) {
+    return res.status(400).json({ error: error.details[0].message });
+  }
+
   const { mail, password } = req.body;
 
   const existingUser = await User.findOne({ mail });
@@ -48,6 +54,11 @@ export const signUp = async (req, res) => {
 };
 
 export const signIn = async (req, res) => {
+  const { error } = userSchema.validate(req.body);
+  if (error) {
+    return res.status(400).json({ error: error.details[0].message });
+  }
+
   const { mail, password } = req.body;
 
   try {
@@ -139,7 +150,7 @@ export const refreshToken = async (req, res) => {
   try {
     const decoded = jwt.verify(refreshToken, process.env.JWT_SECRET);
     const user = await User.findById(decoded.id).select("-password");
-    
+
     if (!user) {
       return res.status(401).json({ error: "User not found" });
     }

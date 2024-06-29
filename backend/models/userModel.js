@@ -16,6 +16,8 @@ const userSchema = new Schema(
       type: String,
       required: true,
       trim: true,
+      minlength: 8,
+      maxlength: 50
     },
     role: {
       type: String,
