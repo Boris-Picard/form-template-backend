@@ -132,14 +132,15 @@ export const deleteCoinAndTransactions = async (req, res) => {
 
 export const getCoin = async (req, res) => {
   const { id, name } = req.params;
+  const { id: idUser } = req.user;
 
-  const { error: idError } = idGetCoinSchema.validate({ id }); 
+  const { error: idError } = idGetCoinSchema.validate({ id });
+  const { error: idUserError } = idGetCoinSchema.validate({ id: idUser });
   const { error: nameError } = coinSchema.validate({ name });
-
-  if (idError || nameError) {
-    return res
-      .status(400)
-      .json({ error: (idError || nameError).details[0].message });
+  if (idError || nameError || idUserError) {
+    return res.status(400).json({
+      error: (idError || nameError || idUserError).details[0].message,
+    });
   }
 
   try {
