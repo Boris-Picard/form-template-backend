@@ -118,7 +118,6 @@ export const getDetailedTransactions = async (req, res) => {
 
   const { error: coinIdError } = idSchema.validate({ id });
   const { error: idError } = idSchema.validate({ id: idUser });
-
   if (coinIdError || idError) {
     return res.status(400).json({
       error: (coinIdError || idError).details[0].message,
@@ -136,6 +135,6 @@ export const getDetailedTransactions = async (req, res) => {
 
     return res.status(200).json(coin);
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    res.status(500).json({ error: error.message });
   }
 };
