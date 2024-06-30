@@ -31,10 +31,18 @@ export const createOnlyTransaction = async (req, res) => {
       spent,
       date,
       coin: coinId,
+      users: userId,
     });
 
     await Coin.findByIdAndUpdate(coinId, {
       $addToSet: { transactions: transaction._id },
+    });
+
+    await User.findByIdAndUpdate(userId, {
+      $addToSet: {
+        transactions: transaction._id,
+        coins: transaction.coin.coinId,
+      },
     });
 
     return res.status(200).json(transaction);
