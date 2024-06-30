@@ -111,3 +111,26 @@ export const updateCoin = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+export const getDetailedTransactions = async (req, res) => {
+  const { id } = req.params;
+  const { id: idUser } = req.user;
+
+  const { error: coinIdError } = idSchema.validate(req.params);
+  const { error: idError } = idSchema.validate({ id: idUser });
+
+  if (coinIdError || idError) {
+    return res.status(400).json({
+      error: (coinIdError || idError).details[0].message,
+    });
+  }
+
+  try {
+    const coin = await Coin.find({ _id: id, users: idUser }).populate(
+      "transactions"
+    );
+    return res.status(200).json(coin);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
