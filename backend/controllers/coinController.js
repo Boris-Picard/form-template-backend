@@ -116,7 +116,7 @@ export const getDetailedTransactions = async (req, res) => {
   const { id } = req.params;
   const { id: idUser } = req.user;
 
-  const { error: coinIdError } = idSchema.validate(req.params);
+  const { error: coinIdError } = idSchema.validate({ id });
   const { error: idError } = idSchema.validate({ id: idUser });
 
   if (coinIdError || idError) {
@@ -126,9 +126,14 @@ export const getDetailedTransactions = async (req, res) => {
   }
 
   try {
-    const coin = await Coin.find({ _id: id, users: idUser }).populate(
-      "transactions"
-    );
+    const coin = await Coin.find({ _id: id, users: idUser });
+
+    if (!coin || coin.length === 0) {
+      return res
+        .status(404)
+        .json({ error: "Coin non trouvé pour cet utilisateur" });
+    }
+
     return res.status(200).json(coin);
   } catch (error) {
     res.status(400).json({ error: error.message });
