@@ -31,7 +31,12 @@ export const createOnlyTransaction = async (req, res) => {
       return res.status(404).json({ error: "User not found!" });
     }
 
-    if (user._id.toString() !== userId) {
+    const coin = await Coin.findById(coinId);
+    if (!coin) {
+      return res.status(404).json({ error: "Coin not found!" });
+    }
+
+    if (userId !== coin.users.toString()) {
       return res.status(403).json({ error: "Permission denied" });
     }
 
@@ -57,7 +62,7 @@ export const createOnlyTransaction = async (req, res) => {
 
     return res.status(200).json(transaction);
   } catch (error) {
-    return res.status(400).json({ error: error.message });
+    return res.status(500).json({ error: error.message });
   }
 };
 
