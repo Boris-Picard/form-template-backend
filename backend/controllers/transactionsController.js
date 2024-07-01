@@ -225,27 +225,48 @@ export const updateTransaction = async (req, res) => {
 };
 
 export const deleteTransaction = async (req, res) => {
+  const { id: userId } = req.user;
   const { id } = req.params;
 
-  const { error } = idSchema.validate({ id });
-  if (error) {
-    return res.status(400).json({ error: error.details[0].message });
+  const { error: transactionIdError } = idSchema.validate({ id });
+  const { error: userIdError } = idSchema.validate({ id: userId });
+  if (transactionIdError || userIdError) {
+    return res
+      .status(400)
+      .json({ error: (transactionIdError || userIdError).details[0].message });
   }
 
   try {
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ error: "User not found!" });
+    }
+
     const transaction = await Transaction.findById(id);
     if (!transaction) {
       return res.status(404).json({ error: "Transaction not found" });
     }
 
+    if (transaction.users.toString() !== userId) {
+      return res.status(403).json({ error: "Permission denied" });
+    }
+
     await Transaction.findByIdAndDelete(id);
+
     await Coin.findByIdAndUpdate(transaction.coin, {
+      $pull: { transactions: id },
+    });
+
+    await User.findByIdAndUpdate(userId, {
       $pull: { transactions: id },
     });
 
     const coin = await Coin.findById(transaction.coin);
     if (coin.transactions.length === 0) {
       await Coin.findByIdAndDelete(coin._id);
+      await User.findByIdAndUpdate(userId, {
+        $pull: { coins: coin._id },
+      });
     }
 
     res
