@@ -186,7 +186,21 @@ export const updateTransaction = async (req, res) => {
   }
 
   try {
-    const transaction = await Transaction.findByIdAndUpdate(
+    const user = await User.findById(idUser);
+    if (!user) {
+      return res.status(404).json({ error: "User not found!" });
+    }
+
+    const transaction = await Transaction.findById(id);
+    if (!transaction) {
+      return res.status(404).json({ error: "Transaction not found" });
+    }
+
+    if (transaction.users.toString() !== idUser) {
+      return res.status(403).json({ error: "Permission denied" });
+    }
+
+    const updateTransaction = await Transaction.findByIdAndUpdate(
       id,
       {
         $set: {
@@ -199,18 +213,9 @@ export const updateTransaction = async (req, res) => {
       { new: true }
     );
 
-    if (!transaction) {
-      return res.status(404).json({ error: "Transaction not found" });
-    }
-
-    const coin = await Coin.findById(transaction.coin);
+    const coin = await Coin.findById(updateTransaction.coin);
     if (!coin) {
       return res.status(404).json({ error: "Associated coin not found" });
-    }
-
-    if (!coin.transactions.includes(transaction._id)) {
-      coin.transactions.push(transaction._id);
-      await coin.save();
     }
 
     res.status(200).json({ transaction, coin });
