@@ -26,6 +26,15 @@ export const createOnlyTransaction = async (req, res) => {
   }
 
   try {
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ error: "User not found!" });
+    }
+
+    if (user._id.toString() !== userId) {
+      return res.status(403).json({ error: "Permission denied" });
+    }
+
     const transaction = await Transaction.create({
       quantity,
       price,
