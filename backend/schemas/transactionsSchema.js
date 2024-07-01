@@ -4,6 +4,10 @@ export const coinSchema = Joi.object({
   name: Joi.string().required(),
 });
 
+export const coinSchemaNotRequired = Joi.object({
+  name: Joi.string(),
+});
+
 export const transactionSchema = Joi.object({
   quantity: Joi.number().positive().required(),
   price: Joi.number().positive().required(),

@@ -7,6 +7,7 @@ import {
   transactionSchema,
   updateTransactionSchema,
   idGetCoinSchema,
+  coinSchemaNotRequired,
 } from "../schemas/transactionsSchema.js";
 
 export const createOnlyTransaction = async (req, res) => {
@@ -143,8 +144,8 @@ export const getCoin = async (req, res) => {
   const { id: idUser } = req.user;
 
   const { error: idError } = idGetCoinSchema.validate({ id });
-  const { error: idUserError } = idGetCoinSchema.validate({ id: idUser });
-  const { error: nameError } = coinSchema.validate({ name });
+  const { error: idUserError } = idSchema.validate({ id: idUser });
+  const { error: nameError } = coinSchemaNotRequired.validate({ name });
   if (idError || nameError || idUserError) {
     return res.status(400).json({
       error: (idError || nameError || idUserError).details[0].message,
@@ -170,16 +171,18 @@ export const getCoin = async (req, res) => {
 export const updateTransaction = async (req, res) => {
   const { id } = req.params;
   const { quantity, price, spent, date } = req.body;
+  const { id: idUser } = req.user;
 
   const { error: transactionError } = updateTransactionSchema.validate(
     req.body
   );
   const { error: idError } = idSchema.validate({ id });
+  const { error: idUserError } = idSchema.validate({ id: idUser });
 
-  if (transactionError || idError) {
-    return res
-      .status(400)
-      .json({ error: (transactionError || idError).details[0].message });
+  if (transactionError || idError || idUserError) {
+    return res.status(400).json({
+      error: (transactionError || idError || idUserError).details[0].message,
+    });
   }
 
   try {
