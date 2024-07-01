@@ -8,6 +8,7 @@ import coinRoutes from "./routes/coinRoutes.js";
 import transactionsRoutes from "./routes/transactionsRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
 import cookieParser from "cookie-parser";
+import { authLimiter, apiLimiter } from "./middleware/rateLimitMiddleware.js";
 
 // Charger les variables d'environnement à partir du fichier .env
 dotenv.config();
@@ -29,9 +30,9 @@ app.use(cookieParser());
 // Middleware pour parser les requêtes JSON
 app.use(express.json());
 
-app.use("/api/coin/", coinRoutes);
-app.use("/api/transaction/", transactionsRoutes);
-app.use("/api/auth/", authRoutes);
+app.use("/api/coin/", apiLimiter, coinRoutes);
+app.use("/api/transaction/", apiLimiter, transactionsRoutes);
+app.use("/api/auth/", authLimiter, authRoutes);
 
 // Gestion des erreurs pour les routes non trouvées
 app.use((req, res, next) => {
