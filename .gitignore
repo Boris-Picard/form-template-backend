@@ -27,3 +27,6 @@ dist-ssr
 #serverside
 server/config
 .env
+
+#middleware
+backend/middleware/mailMiddleware.js

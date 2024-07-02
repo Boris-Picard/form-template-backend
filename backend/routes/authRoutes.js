@@ -5,6 +5,7 @@ import {
   getUser,
   logout,
   refreshToken,
+  verifyEmail,
 } from "../controllers/authController.js";
 import User from "../models/userModel.js";
 import auth from "../middleware/authMiddleware.js";
@@ -18,6 +19,8 @@ router.post("/signin", signIn);
 router.post("/refresh-token", refreshToken);
 
 router.get("/user", auth, getUser);
+
+router.get("/verify-email", verifyEmail);
 
 router.delete("/logout", logout);
 

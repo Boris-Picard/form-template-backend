@@ -2,6 +2,7 @@ import User from "../models/userModel.js";
 import jwt from "jsonwebtoken";
 import process from "process";
 import { userSchema, idUserSchema } from "../schemas/userSchema.js";
+import { sendVerificationEmail } from "../middleware/mailMiddleware.js";
 
 export const signUp = async (req, res) => {
   const { mail, password } = req.body;
@@ -18,6 +19,9 @@ export const signUp = async (req, res) => {
 
   try {
     const user = await User.create({ mail, password });
+
+    const verificationToken = await user.generaEmailVerificationToken();
+    sendVerificationEmail(mail, verificationToken);
 
     const refreshToken = await user.generateRefreshToken();
     res.cookie("refreshToken", refreshToken, {
@@ -48,6 +52,31 @@ export const signUp = async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({ error: "Internal server error" });
+    console.log(error);
+  }
+};
+
+export const verifyEmail = async (req, res) => {
+  const { token } = req.query;
+
+  if (!token) {
+    return res.status(400).json({ error: "Token is missing" });
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findById(decoded.id);
+
+    if (!user) {
+      return res.status(400).json({ error: "Invalid token" });
+    }
+
+    user.isVerified = true;
+    await user.save();
+
+    res.status(200).json({ message: "Email verified successfully" });
+  } catch (error) {
+    res.status(400).json({ error: "Invalid or expired token" });
   }
 };
 
@@ -63,6 +92,10 @@ export const signIn = async (req, res) => {
     const user = await User.findOne({ mail });
     if (!user) {
       return res.status(401).json({ error: "Invalid email or password" });
+    }
+
+    if (!user.isVerified) {
+      return res.status(401).json({ error: "Please verify your email first" });
     }
 
     const isOk = await user.comparePassword(password);
