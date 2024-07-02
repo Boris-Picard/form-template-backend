@@ -58,14 +58,14 @@ export const signUp = async (req, res) => {
 
 export const verifyEmail = async (req, res) => {
   const { token } = req.query;
-
   if (!token) {
     return res.status(400).json({ error: "Token is missing" });
   }
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await User.findById(decoded.id);
+
+    const user = await User.findById(decoded.id).select("-password");
 
     if (!user) {
       return res.status(400).json({ error: "Invalid token" });
