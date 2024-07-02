@@ -47,6 +47,10 @@ export const verifyEmail = async (req, res) => {
     if (!user) {
       return res.status(400).json({ error: "Invalid token" });
     }
+    
+    if (user._id.toString() !== decoded.id.toString()) {
+      return res.status(400).json({ error: "Token does not match user" });
+    }
 
     user.isVerified = true;
     await user.save();
