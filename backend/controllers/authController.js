@@ -23,32 +23,9 @@ export const signUp = async (req, res) => {
     const verificationToken = await user.generaEmailVerificationToken();
     sendVerificationEmail(mail, verificationToken);
 
-    const refreshToken = await user.generateRefreshToken();
-    res.cookie("refreshToken", refreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "Strict",
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-    });
-
-    const token = await user.generateToken();
-    res.cookie("token", token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "Strict",
-      maxAge: 1 * 60 * 60 * 1000, // 1 hour
-    });
-
     res.status(201).json({
-      user: {
-        id: user._id,
-        mail: user.mail,
-        role: user.role,
-        transactions: user.transactions,
-        coins: user.coins,
-        createdAt: user.createdAt,
-        updatedAt: user.updatedAt,
-      },
+      message:
+        "Inscription réussie. Veuillez vérifier votre e-mail pour confirmer votre adresse.",
     });
   } catch (error) {
     res.status(500).json({ error: "Internal server error" });

@@ -78,7 +78,7 @@ userSchema.methods.generateToken = async function () {
 userSchema.methods.generaEmailVerificationToken = async function () {
   // Utilise une fonction traditionnelle pour accéder à `this`
   return jwt.sign({ id: this._id }, process.env.JWT_SECRET, {
-    expiresIn: "1h",
+    expiresIn: "15m",
   });
 };
 
