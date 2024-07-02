@@ -17,7 +17,7 @@ const userSchema = new Schema(
       required: true,
       trim: true,
       minlength: 8,
-      maxlength: 50
+      maxlength: 50,
     },
     role: {
       type: String,
@@ -36,6 +36,10 @@ const userSchema = new Schema(
         ref: "Coin",
       },
     ],
+    isVerified: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
 );
