@@ -14,7 +14,7 @@ export const signUp = async (req, res) => {
 
   const existingUser = await User.findOne({ mail });
   if (existingUser) {
-    return res.status(401).json({ error: "User already exists" });
+    return res.status(401).json({verified: existingUser.isVerified, error: "User already exists" });
   }
 
   try {
@@ -24,6 +24,7 @@ export const signUp = async (req, res) => {
     sendVerificationEmail(mail, verificationToken);
 
     res.status(201).json({
+      verified: user.isVerified,
       message:
         "Inscription réussie. Veuillez vérifier votre e-mail pour confirmer votre adresse.",
     });
@@ -47,7 +48,7 @@ export const verifyEmail = async (req, res) => {
     if (!user) {
       return res.status(400).json({ error: "Invalid token" });
     }
-    
+
     if (user._id.toString() !== decoded.id.toString()) {
       return res.status(400).json({ error: "Token does not match user" });
     }
