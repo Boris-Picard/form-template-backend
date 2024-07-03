@@ -10,6 +10,7 @@ import {
 } from "../controllers/authController.js";
 import User from "../models/userModel.js";
 import auth from "../middleware/authMiddleware.js";
+import { mailLimiter } from "../middleware/rateLimitMiddleware.js";
 
 const router = express.Router();
 
@@ -23,7 +24,7 @@ router.post("/resend-email", reSendEmail);
 
 router.get("/user", auth, getUser);
 
-router.get("/verify-email", verifyEmail);
+router.get("/verify-email", mailLimiter, verifyEmail);
 
 router.delete("/logout", logout);
 

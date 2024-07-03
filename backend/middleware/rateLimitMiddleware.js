@@ -9,3 +9,8 @@ export const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 50,
 });
+
+export const mailLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 3,
+});

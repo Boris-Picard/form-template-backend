@@ -68,7 +68,12 @@ export const verifyEmail = async (req, res) => {
     user.isVerified = true;
     await user.save();
 
-    res.status(200).json({ message: "Email verified successfully" });
+    res
+      .status(200)
+      .json({
+        verified: user.isVerified,
+        message: "Email verified successfully",
+      });
   } catch (error) {
     res.status(400).json({ error: "Invalid or expired token" });
   }
