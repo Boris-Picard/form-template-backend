@@ -12,17 +12,26 @@ export const signUp = async (req, res) => {
     return res.status(400).json({ error: error.details[0].message });
   }
 
-  const existingUser = await User.findOne({ mail });
-  if (existingUser) {
-    return res.status(401).json({
-      verified: existingUser.isVerified,
-      error: "User already exists",
-    });
-  }
-
   try {
-    const user = await User.create({ mail, password });
+    const existingUser = await User.findOne({ mail });
+    if (existingUser) {
+      if (!existingUser.isVerified) {
+        const verificationToken =
+          await existingUser.generaEmailVerificationToken();
+        sendVerificationEmail(mail, verificationToken);
+        return res.status(201).json({
+          verified: existingUser.isVerified,
+          message: "Email not Verified an Email has been sent",
+        });
+      } else {
+        return res.status(400).json({
+          verified: existingUser.isVerified,
+          error: "L'utilisateur avec cet email existe déjà et est vérifié.",
+        });
+      }
+    }
 
+    const user = await User.create({ mail, password });
     const verificationToken = await user.generaEmailVerificationToken();
     sendVerificationEmail(mail, verificationToken);
 
@@ -75,7 +84,7 @@ export const reSendEmail = async (req, res) => {
 
   try {
     const existingUser = await User.findOne({ mail }).select("-password");
-    
+
     if (!existingUser) {
       return res.status(404).json({ error: "User not found" });
     }
