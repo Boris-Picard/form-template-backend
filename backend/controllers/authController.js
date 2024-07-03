@@ -2,7 +2,10 @@ import User from "../models/userModel.js";
 import jwt from "jsonwebtoken";
 import process from "process";
 import { userSchema, idUserSchema, mailSchema } from "../schemas/userSchema.js";
-import { sendVerificationEmail } from "../middleware/mailMiddleware.js";
+import {
+  sendVerificationEmail,
+  sendForgotPasswordMail,
+} from "../middleware/mailMiddleware.js";
 
 export const signUp = async (req, res) => {
   const { mail, password } = req.body;
@@ -16,7 +19,8 @@ export const signUp = async (req, res) => {
     const existingUser = await User.findOne({ mail });
     if (existingUser) {
       if (!existingUser.isVerified) {
-        const verificationToken = await existingUser.generaEmailVerificationToken();
+        const verificationToken =
+          await existingUser.generaEmailVerificationToken();
         sendVerificationEmail(mail, verificationToken);
         return res.status(201).json({
           verified: existingUser.isVerified,
@@ -36,14 +40,14 @@ export const signUp = async (req, res) => {
 
     res.status(201).json({
       verified: user.isVerified,
-      message: "Registration successful. Please check your email to confirm your address.",
+      message:
+        "Registration successful. Please check your email to confirm your address.",
     });
   } catch (error) {
     res.status(500).json({ error: "Internal server error" });
     console.log(error);
   }
 };
-
 
 export const verifyEmail = async (req, res) => {
   const { token } = req.query;
@@ -67,12 +71,10 @@ export const verifyEmail = async (req, res) => {
     user.isVerified = true;
     await user.save();
 
-    res
-      .status(200)
-      .json({
-        verified: user.isVerified,
-        message: "Email verified successfully",
-      });
+    res.status(200).json({
+      verified: user.isVerified,
+      message: "Email verified successfully",
+    });
   } catch (error) {
     res.status(400).json({ error: "Invalid or expired token" });
   }
@@ -157,6 +159,34 @@ export const signIn = async (req, res) => {
         updatedAt: user.updatedAt,
       },
     });
+  } catch (error) {
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+export const forgotPassword = async (req, res) => {
+  const { mail } = req.body;
+
+  const { error } = mailSchema.validate({ mail });
+  if (error) {
+    return res.status(400).json({ error: error.details[0].message });
+  }
+
+  try {
+    const existingUser = await User.findOne({ mail }).select("-password");
+
+    if (!existingUser) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    if (existingUser) {
+      if (existingUser.isVerified) {
+        const verificationToken =
+          await existingUser.generaEmailVerificationToken();
+        sendForgotPasswordMail(mail, verificationToken);
+        res.status(200).json({ message: "Email Verification send" });
+      }
+    }
   } catch (error) {
     res.status(500).json({ error: "Internal server error" });
   }
