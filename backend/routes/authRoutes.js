@@ -8,9 +8,11 @@ import {
   verifyEmail,
   reSendEmail,
   forgotPassword,
+  resetPassword,
 } from "../controllers/authController.js";
 import User from "../models/userModel.js";
 import auth from "../middleware/authMiddleware.js";
+import authMail from "../middleware/mailAuthMiddleware.js";
 import { mailLimiter } from "../middleware/rateLimitMiddleware.js";
 
 const router = express.Router();
@@ -25,9 +27,11 @@ router.post("/resend-email", reSendEmail);
 
 router.post("/forgot-password", forgotPassword);
 
+router.post("/reset-password", authMail, resetPassword);
+
 router.get("/user", auth, getUser);
 
-router.get("/verify-email", mailLimiter, verifyEmail);
+router.get("/verify-email", authMail, mailLimiter, verifyEmail);
 
 router.delete("/logout", logout);
 

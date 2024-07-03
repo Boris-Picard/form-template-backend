@@ -1,7 +1,12 @@
 import User from "../models/userModel.js";
 import jwt from "jsonwebtoken";
 import process from "process";
-import { userSchema, idUserSchema, mailSchema } from "../schemas/userSchema.js";
+import {
+  userSchema,
+  idUserSchema,
+  mailSchema,
+  passwordSchema,
+} from "../schemas/userSchema.js";
 import {
   sendVerificationEmail,
   sendForgotPasswordMail,
@@ -20,7 +25,7 @@ export const signUp = async (req, res) => {
     if (existingUser) {
       if (!existingUser.isVerified) {
         const verificationToken =
-          await existingUser.generaEmailVerificationToken();
+          await existingUser.generateEmailVerificationToken();
         sendVerificationEmail(mail, verificationToken);
         return res.status(201).json({
           verified: existingUser.isVerified,
@@ -35,7 +40,7 @@ export const signUp = async (req, res) => {
     }
 
     const user = await User.create({ mail, password });
-    const verificationToken = await user.generaEmailVerificationToken();
+    const verificationToken = await user.generateEmailVerificationToken();
     sendVerificationEmail(mail, verificationToken);
 
     res.status(201).json({
@@ -50,21 +55,19 @@ export const signUp = async (req, res) => {
 };
 
 export const verifyEmail = async (req, res) => {
-  const { token } = req.query;
-  if (!token) {
+  const { decodedToken } = req;
+  if (!decodedToken) {
     return res.status(400).json({ error: "Token is missing" });
   }
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-    const user = await User.findById(decoded.id).select("-password");
+    const user = await User.findById(decodedToken.id).select("-password");
 
     if (!user) {
       return res.status(400).json({ error: "Invalid token" });
     }
 
-    if (user._id.toString() !== decoded.id.toString()) {
+    if (user._id.toString() !== decodedToken.id.toString()) {
       return res.status(400).json({ error: "Token does not match user" });
     }
 
@@ -76,7 +79,7 @@ export const verifyEmail = async (req, res) => {
       message: "Email verified successfully",
     });
   } catch (error) {
-    res.status(400).json({ error: "Invalid or expired token" });
+    res.status(500).json({ error: "Internal server error" });
   }
 };
 
@@ -99,7 +102,8 @@ export const reSendEmail = async (req, res) => {
       return res.status(400).json({ message: "User is already verified" });
     }
 
-    const verificationToken = await existingUser.generaEmailVerificationToken();
+    const verificationToken =
+      await existingUser.generateEmailVerificationToken();
     sendVerificationEmail(mail, verificationToken);
 
     res.status(200).json({ message: "Email Verification send" });
@@ -180,13 +184,45 @@ export const forgotPassword = async (req, res) => {
     }
 
     if (existingUser) {
-      if (existingUser.isVerified) {
-        const verificationToken =
-          await existingUser.generaEmailVerificationToken();
-        sendForgotPasswordMail(mail, verificationToken);
-        res.status(200).json({ message: "Email Verification send" });
+      if (!existingUser.isVerified) {
+        return res.status(400).json({ error: "User email not verified" });
       }
+
+      const verificationToken =
+        await existingUser.generateEmailVerificationToken();
+
+      sendForgotPasswordMail(mail, verificationToken);
+      return res.status(200).json({ message: "Password reset email sent" });
     }
+  } catch (error) {
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+export const resetPassword = async (req, res) => {
+  const { token } = req.query;
+  const { password } = req.body;
+
+  if (!token) {
+    return res.status(400).json({ error: "Token is missing" });
+  }
+
+  const { error } = passwordSchema.validate({ password });
+  if (error) {
+    return res.status(400).json({ error: error.details[0].message });
+  }
+
+  try {
+    const decode = jwt.verify(token, process.env.JWT_SECRET);
+
+    const user = await User.findById(decode.id).select("-password");
+
+    if (!user || !user.isVerified) {
+      return res
+        .status(400)
+        .json({ error: "User email not verified or user doesnt exist !" });
+    }
+    console.log(user);
   } catch (error) {
     res.status(500).json({ error: "Internal server error" });
   }
