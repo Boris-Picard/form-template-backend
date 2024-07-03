@@ -1,7 +1,7 @@
 import User from "../models/userModel.js";
 import jwt from "jsonwebtoken";
 import process from "process";
-import { userSchema, idUserSchema } from "../schemas/userSchema.js";
+import { userSchema, idUserSchema, mailSchema } from "../schemas/userSchema.js";
 import { sendVerificationEmail } from "../middleware/mailMiddleware.js";
 
 export const signUp = async (req, res) => {
@@ -14,7 +14,10 @@ export const signUp = async (req, res) => {
 
   const existingUser = await User.findOne({ mail });
   if (existingUser) {
-    return res.status(401).json({verified: existingUser.isVerified, error: "User already exists" });
+    return res.status(401).json({
+      verified: existingUser.isVerified,
+      error: "User already exists",
+    });
   }
 
   try {
@@ -59,6 +62,34 @@ export const verifyEmail = async (req, res) => {
     res.status(200).json({ message: "Email verified successfully" });
   } catch (error) {
     res.status(400).json({ error: "Invalid or expired token" });
+  }
+};
+
+export const reSendEmail = async (req, res) => {
+  const { mail } = req.body;
+
+  const { error } = mailSchema.validate(req.body);
+  if (error) {
+    return res.status(400).json({ error: error.details[0].message });
+  }
+
+  try {
+    const existingUser = await User.findOne({ mail }).select("-password");
+    
+    if (!existingUser) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    if (existingUser.isVerified) {
+      return res.status(400).json({ message: "User is already verified" });
+    }
+
+    const verificationToken = await existingUser.generaEmailVerificationToken();
+    sendVerificationEmail(mail, verificationToken);
+
+    res.status(200).json({ message: "Email Verification send" });
+  } catch (error) {
+    res.status(500).json({ error: "Internal server error" });
   }
 };
 
