@@ -200,10 +200,9 @@ export const forgotPassword = async (req, res) => {
 };
 
 export const resetPassword = async (req, res) => {
-  const { token } = req.query;
+  const { decodedToken } = req;
   const { password } = req.body;
-
-  if (!token) {
+  if (!decodedToken) {
     return res.status(400).json({ error: "Token is missing" });
   }
 
@@ -213,16 +212,17 @@ export const resetPassword = async (req, res) => {
   }
 
   try {
-    const decode = jwt.verify(token, process.env.JWT_SECRET);
-
-    const user = await User.findById(decode.id).select("-password");
+    const user = await User.findById(decodedToken.id).select("-password");
 
     if (!user || !user.isVerified) {
       return res
         .status(400)
-        .json({ error: "User email not verified or user doesnt exist !" });
+        .json({ error: "User email not verified or invalid token !" });
     }
-    console.log(user);
+    
+    await user.resetPassword(password);
+
+    return res.status(200).json({ message: "Password successfully reset !" });
   } catch (error) {
     res.status(500).json({ error: "Internal server error" });
   }

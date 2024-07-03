@@ -17,7 +17,7 @@ const userSchema = new Schema(
       required: true,
       trim: true,
       minlength: 8,
-      maxlength: 50,
+      maxlength: 100,
     },
     role: {
       type: String,
@@ -60,6 +60,16 @@ userSchema.pre("save", async function (next) {
     next(error); // Passe l'erreur au middleware suivant en cas de problème
   }
 });
+
+userSchema.methods.resetPassword = async function (newPassword) {
+  try {
+    this.password = await argon2.hash(newPassword);
+    await this.save();
+    return true;
+  } catch (error) {
+    throw new Error("Erreur lors de la réinitialisation du mot de passe");
+  }
+};
 
 // Méthode pour comparer le mot de passe
 userSchema.methods.comparePassword = async function (password) {
