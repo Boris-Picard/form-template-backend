@@ -219,7 +219,7 @@ export const resetPassword = async (req, res) => {
         .status(400)
         .json({ error: "User email not verified or invalid token !" });
     }
-    
+
     await user.resetPassword(password);
 
     return res.status(200).json({ message: "Password successfully reset !" });

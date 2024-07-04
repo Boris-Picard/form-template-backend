@@ -63,7 +63,8 @@ userSchema.pre("save", async function (next) {
 
 userSchema.methods.resetPassword = async function (newPassword) {
   try {
-    this.password = await argon2.hash(newPassword);
+    const pass = await argon2.hash(newPassword);
+    this.password = pass
     await this.save();
     return true;
   } catch (error) {
@@ -73,8 +74,11 @@ userSchema.methods.resetPassword = async function (newPassword) {
 
 // Méthode pour comparer le mot de passe
 userSchema.methods.comparePassword = async function (password) {
-  // Utilise une fonction traditionnelle pour accéder à `this` qui fait référence à l'instance courante de l'utilisateur
-  return argon2.verify(this.password, password);
+  try {
+    return argon2.verify(this.password, password);
+  } catch (error) {
+    throw new Error("Error when comparing password");
+  }
 };
 
 // Méthode pour générer un token JWT
