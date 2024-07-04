@@ -13,7 +13,10 @@ import {
 import User from "../models/userModel.js";
 import auth from "../middleware/authMiddleware.js";
 import authMail from "../middleware/mailAuthMiddleware.js";
-import { mailLimiter } from "../middleware/rateLimitMiddleware.js";
+import {
+  mailLimiter,
+  resetPasswordLimiter,
+} from "../middleware/rateLimitMiddleware.js";
 
 const router = express.Router();
 
@@ -27,7 +30,7 @@ router.post("/resend-email", reSendEmail);
 
 router.post("/forgot-password", forgotPassword);
 
-router.post("/reset-password", authMail, resetPassword);
+router.post("/reset-password", resetPasswordLimiter, authMail, resetPassword);
 
 router.get("/user", auth, getUser);
 

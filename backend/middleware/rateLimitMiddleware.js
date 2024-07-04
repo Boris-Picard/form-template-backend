@@ -14,3 +14,8 @@ export const mailLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 3,
 });
+
+export const resetPasswordLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 3,
+});
