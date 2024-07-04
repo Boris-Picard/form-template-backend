@@ -12,6 +12,8 @@ import {
   sendForgotPasswordMail,
 } from "../middleware/mailMiddleware.js";
 
+import argon2 from "argon2";
+
 export const signUp = async (req, res) => {
   const { mail, password } = req.body;
 
@@ -212,16 +214,20 @@ export const resetPassword = async (req, res) => {
   }
 
   try {
-    const user = await User.findById(decodedToken.id).select("-password");
-
+    const user = await User.findById(decodedToken.id);
     if (!user || !user.isVerified) {
       return res
         .status(400)
         .json({ error: "User email not verified or invalid token !" });
     }
 
-    await user.resetPassword(password);
+    // const hash = await user.resetPasswordHash(password);
+    const hash = await argon2.hash(password);
 
+    await User.findByIdAndUpdate(decodedToken.id, {
+      password: hash,
+    });
+    
     return res.status(200).json({ message: "Password successfully reset !" });
   } catch (error) {
     res.status(500).json({ error: "Internal server error" });

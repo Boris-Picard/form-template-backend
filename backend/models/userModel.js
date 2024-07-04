@@ -61,16 +61,16 @@ userSchema.pre("save", async function (next) {
   }
 });
 
-userSchema.methods.resetPassword = async function (newPassword) {
-  try {
-    const pass = await argon2.hash(newPassword);
-    this.password = pass
-    await this.save();
-    return true;
-  } catch (error) {
-    throw new Error("Erreur lors de la réinitialisation du mot de passe");
-  }
-};
+// userSchema.methods.resetPasswordHash = async function (newPassword) {
+//   try {
+//     const pass = await argon2.hash(newPassword);
+//     this.password = pass;
+//     await this.save();
+//     return true;
+//   } catch (error) {
+//     throw new Error("Erreur lors de la réinitialisation du mot de passe");
+//   }
+// };
 
 // Méthode pour comparer le mot de passe
 userSchema.methods.comparePassword = async function (password) {
