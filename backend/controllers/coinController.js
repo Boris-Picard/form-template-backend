@@ -3,7 +3,6 @@ import Coin from "../models/coinModel.js";
 import Transaction from "../models/transactionsModel.js";
 import User from "../models/userModel.js";
 import {
-  transactionSchema,
   coinSchema,
   idSchema,
   coinAndTransactionSchema,
@@ -14,9 +13,11 @@ export const createCoinAndTransaction = async (req, res) => {
 
   const { quantity, price, spent, date, name } = req.body;
   const { id: userId } = req.user;
-  const { error: transactionError } = coinAndTransactionSchema.validate(req.body);
+  const { error: transactionError } = coinAndTransactionSchema.validate(
+    req.body
+  );
   const { error: userIdError } = idSchema.validate({ id: userId });
-  
+
   if (transactionError || userIdError) {
     return res.status(400).json({
       error: (transactionError || userIdError).details[0].message,
@@ -32,14 +33,11 @@ export const createCoinAndTransaction = async (req, res) => {
     }
 
     const coinId = coin._id;
+
     if (!coin.users.includes(userId)) {
       coin.users.push(userId);
       await coin.save();
     }
-
-    await User.findByIdAndUpdate(userId, {
-      $addToSet: { coins: coin._id },
-    });
 
     const transaction = await Transaction.create({
       quantity,
@@ -51,7 +49,7 @@ export const createCoinAndTransaction = async (req, res) => {
     });
 
     await User.findByIdAndUpdate(userId, {
-      $addToSet: { transactions: transaction._id },
+      $addToSet: { transactions: transaction._id, coins: coin._id },
     });
 
     await Coin.findByIdAndUpdate(coinId, {
@@ -66,7 +64,6 @@ export const createCoinAndTransaction = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
-
 
 export const updateCoin = async (req, res) => {
   const { id } = req.params;
