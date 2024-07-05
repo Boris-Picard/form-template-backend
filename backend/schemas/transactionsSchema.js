@@ -23,6 +23,14 @@ export const updateTransactionSchema = Joi.object({
   date: Joi.date().required(),
 });
 
+export const coinAndTransactionSchema = Joi.object({
+  name: Joi.string().required(),
+  quantity: Joi.number().positive().required(),
+  price: Joi.number().positive().required(),
+  spent: Joi.number().positive().required(),
+  date: Joi.date().required(),
+});
+
 export const idSchema = Joi.object({
   id: Joi.string().hex().length(24).required(),
 });

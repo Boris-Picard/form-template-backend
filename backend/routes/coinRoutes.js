@@ -1,9 +1,8 @@
 import express from "express";
 import {
-  createCoin,
-  addTransactionToCoin,
   updateCoin,
   getDetailedTransactions,
+  createCoinAndTransaction,
 } from "../controllers/coinController.js";
 import auth from "../middleware/authMiddleware.js";
 
@@ -11,8 +10,7 @@ const router = express.Router();
 
 router.use(auth);
 
-router.post("/", createCoin);
-router.post("/transaction", addTransactionToCoin);
+router.post("/createTransaction", createCoinAndTransaction);
 router.get("/detailed/:id", getDetailedTransactions);
 router.put("/:id", updateCoin);
 
