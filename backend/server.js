@@ -1,25 +1,29 @@
-// Importer les modules nécessaires
-import express from "express"; // Framework web pour Node.js
-import dotenv from "dotenv"; // Charger les variables d'environnement à partir d'un fichier .env
-import mongoose from "mongoose"; // ODM (Object Data Mapping) pour MongoDB
-import process from "process"; // Objet global de processus Node.js
+import express from "express";
+import dotenv from "dotenv";
+import mongoose from "mongoose";
+import process from "process";
 import cors from "cors";
+import path from "path";
+import { fileURLToPath } from "url"; // Importer pour définir __dirname
 import coinRoutes from "./routes/coinRoutes.js";
 import transactionsRoutes from "./routes/transactionsRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
 import cookieParser from "cookie-parser";
 import { authLimiter, apiLimiter } from "./middleware/rateLimitMiddleware.js";
-import path from "path";
 
 // Charger les variables d'environnement à partir du fichier .env
 dotenv.config();
+
+// Définir __filename et __dirname
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Créer une instance de l'application Express
 const app = express();
 
 app.set("trust proxy", 1);
 
-// configuration cors
+// Configuration CORS
 const corsOptions = {
   origin: ["https://mycryptofolio.site"],
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
@@ -34,14 +38,21 @@ app.use(cookieParser());
 // Middleware pour parser les requêtes JSON
 app.use(express.json());
 
+// Définir l'en-tête Referrer-Policy
+app.use((req, res, next) => {
+  res.header("Referrer-Policy", "strict-origin-when-cross-origin");
+  next();
+});
+
+// Vos routes API
 app.use("/api/coin/", apiLimiter, coinRoutes);
 app.use("/api/transaction/", apiLimiter, transactionsRoutes);
 app.use("/api/auth/", authLimiter, authRoutes);
 
-// Serve static files from the React app
+// Servir les fichiers statiques de l'application React
 app.use(express.static(path.join(__dirname, "dist")));
 
-// The "catchall" handler: for any request that doesn't match one above, send back React's index.html file.
+// Catch-all handler pour envoyer index.html pour toute requête non API
 app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "dist", "index.html"));
 });
