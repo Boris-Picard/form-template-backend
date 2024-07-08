@@ -2,7 +2,7 @@ import jwt from "jsonwebtoken";
 import process from "process";
 
 const authMail = (req, res, next) => {
-  const { token } = req.query.token;
+  const { token } = req.query;
 
   if (!token) {
     return res.status(401).json({ error: "No token, authorization denied" });
