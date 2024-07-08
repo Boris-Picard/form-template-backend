@@ -58,30 +58,34 @@ export const signUp = async (req, res) => {
 
 export const verifyEmail = async (req, res) => {
   const { decodedToken } = req;
+  console.log("Decoded token:", decodedToken);
   if (!decodedToken) {
-    return res.status(400).json({ error: "Token is missing" });
+      return res.status(400).json({ error: "Token is missing" });
   }
 
   try {
-    const user = await User.findById(decodedToken.id).select("-password");
+      const user = await User.findById(decodedToken.id).select("-password");
+      console.log("User found:", user);
 
-    if (!user) {
-      return res.status(400).json({ error: "Invalid token" });
-    }
+      if (!user) {
+          return res.status(400).json({ error: "Invalid token" });
+      }
 
-    if (user._id.toString() !== decodedToken.id.toString()) {
-      return res.status(400).json({ error: "Token does not match user" });
-    }
+      if (user._id.toString() !== decodedToken.id.toString()) {
+          return res.status(400).json({ error: "Token does not match user" });
+      }
 
-    user.isVerified = true;
-    await user.save();
+      user.isVerified = true;
+      await user.save();
+      console.log("User verified and saved:", user);
 
-    res.status(200).json({
-      verified: user.isVerified,
-      message: "Email verified successfully",
-    });
+      res.status(200).json({
+          verified: user.isVerified,
+          message: "Email verified successfully",
+      });
   } catch (error) {
-    res.status(500).json({ error: "Internal server error" });
+      console.error("Error during email verification:", error);
+      res.status(500).json({ error: "Internal server error" });
   }
 };
 
