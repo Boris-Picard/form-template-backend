@@ -24,7 +24,7 @@ const sendVerificationEmail = (userEmail, token) => {
         <h2 style="color: #333333;">Verify Your Email Address</h2>
         <p style="color: #555555;">Thank you for registering with us! Please click the button below to verify your email address and complete your registration:</p>
         <div style="text-align: center; margin: 20px 0;">
-          <a href="https://mycryptofolio.site/api/auth/verify-email?token=${token}" style="background-color: #09090B; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Verify Email</a>
+          <a href="https://mycryptofolio.site/verify-email?token=${token}" style="background-color: #09090B; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Verify Email</a>
         </div>
         <p style="color: #555555;">If you did not create an account, no further action is required.</p>
         <p style="color: #555555;">Best regards,<br>myCryptoFolio</p>
@@ -50,7 +50,7 @@ const sendForgotPasswordMail = (userEmail, token) => {
           <h2 style="color: #333333;">Reset Your Password</h2>
           <p style="color: #555555;">We received a request to reset your password. Please click the button below to reset your password:</p>
           <div style="text-align: center; margin: 20px 0;">
-            <a href="https://mycryptofolio.site/api/ath/reset-password?token=${token}" style="background-color: #09090B; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Reset Password</a>
+            <a href="https://mycryptofolio.site/reset-password?token=${token}" style="background-color: #09090B; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Reset Password</a>
           </div>
           <p style="color: #555555;">If you did not request a password reset, no further action is required.</p>
           <p style="color: #555555;">Best regards,<br>myCryptoFolio</p>
