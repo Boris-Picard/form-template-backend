@@ -58,34 +58,30 @@ export const signUp = async (req, res) => {
 
 export const verifyEmail = async (req, res) => {
   const { decodedToken } = req;
-  console.log("Decoded token:", decodedToken);
   if (!decodedToken) {
-      return res.status(400).json({ error: "Token is missing" });
+    return res.status(400).json({ error: "Token is missing" });
   }
 
   try {
-      const user = await User.findById(decodedToken.id).select("-password");
-      console.log("User found:", user);
+    const user = await User.findById(decodedToken.id).select("-password");
 
-      if (!user) {
-          return res.status(400).json({ error: "Invalid token" });
-      }
+    if (!user) {
+      return res.status(400).json({ error: "Invalid token" });
+    }
 
-      if (user._id.toString() !== decodedToken.id.toString()) {
-          return res.status(400).json({ error: "Token does not match user" });
-      }
+    if (user._id.toString() !== decodedToken.id.toString()) {
+      return res.status(400).json({ error: "Token does not match user" });
+    }
 
-      user.isVerified = true;
-      await user.save();
-      console.log("User verified and saved:", user);
+    user.isVerified = true;
+    await user.save();
 
-      res.status(200).json({
-          verified: user.isVerified,
-          message: "Email verified successfully",
-      });
+    res.status(200).json({
+      verified: user.isVerified,
+      message: "Email verified successfully",
+    });
   } catch (error) {
-      console.error("Error during email verification:", error);
-      res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({ error: "Internal server error" });
   }
 };
 
@@ -144,16 +140,16 @@ export const signIn = async (req, res) => {
     const refreshToken = await user.generateRefreshToken();
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
-      secure: true,
-      sameSite: "none",
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "Strict",
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
 
     const token = await user.generateToken();
     res.cookie("token", token, {
       httpOnly: true,
-      secure: true,
-      sameSite: "none",
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "Strict",
       maxAge: 1 * 60 * 60 * 1000, // 1 hour
     });
 
@@ -288,8 +284,8 @@ export const refreshToken = async (req, res) => {
     const newToken = await user.generateToken();
     res.cookie("token", newToken, {
       httpOnly: true,
-      secure: true,
-      sameSite: "none",
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "Strict",
       maxAge: 1 * 60 * 60 * 1000, // 1 hour
     });
 

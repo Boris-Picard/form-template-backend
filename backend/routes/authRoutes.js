@@ -10,7 +10,6 @@ import {
   forgotPassword,
   resetPassword,
 } from "../controllers/authController.js";
-import User from "../models/userModel.js";
 import auth from "../middleware/authMiddleware.js";
 import authMail from "../middleware/mailAuthMiddleware.js";
 import {

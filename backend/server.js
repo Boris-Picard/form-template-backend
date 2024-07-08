@@ -16,6 +16,8 @@ dotenv.config();
 // Créer une instance de l'application Express
 const app = express();
 
+app.set('trust proxy', 1);
+
 // configuration cors
 const corsOptions = {
   origin: ["https://mycryptofolio.site"],
