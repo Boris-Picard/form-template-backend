@@ -33,7 +33,7 @@ router.post("/reset-password", resetPasswordLimiter, authMail, resetPassword);
 
 router.get("/user", auth, getUser);
 
-router.get("/verify-email", authMail, mailLimiter, verifyEmail);
+router.get("/verify-email", mailLimiter, authMail, verifyEmail);
 
 router.delete("/logout", logout);
 
