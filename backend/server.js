@@ -18,7 +18,7 @@ const app = express();
 
 // configuration cors
 const corsOptions = {
-  origin: ["mycryptofolio.site"],
+  origin: ["https://mycryptofolio.site"],
   credentials: true,
   optionsSuccessStatus: 200,
 };
