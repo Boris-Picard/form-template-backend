@@ -24,7 +24,7 @@ const sendVerificationEmail = (userEmail, token) => {
         <h2 style="color: #333333;">Verify Your Email Address</h2>
         <p style="color: #555555;">Thank you for registering with us! Please click the button below to verify your email address and complete your registration:</p>
         <div style="text-align: center; margin: 20px 0;">
-          <a href="https://mycryptofolio.site/verify-email?token=${token}" style="background-color: #09090B; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Verify Email</a>
+          <a href="https://mycryptofolio-backend.onrender.com/api/auth/verify-email?token=${token}" style="background-color: #09090B; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Verify Email</a>
         </div>
         <p style="color: #555555;">If you did not create an account, no further action is required.</p>
         <p style="color: #555555;">Best regards,<br>myCryptoFolio</p>
