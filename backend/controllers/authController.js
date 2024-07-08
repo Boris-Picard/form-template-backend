@@ -141,7 +141,7 @@ export const signIn = async (req, res) => {
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
       secure: true,
-      sameSite: "Strict",
+      sameSite: "Lax",
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
 
@@ -149,7 +149,7 @@ export const signIn = async (req, res) => {
     res.cookie("token", token, {
       httpOnly: true,
       secure: true,
-      sameSite: "Strict",
+      sameSite: "Lax",
       maxAge: 1 * 60 * 60 * 1000, // 1 hour
     });
 
@@ -285,7 +285,7 @@ export const refreshToken = async (req, res) => {
     res.cookie("token", newToken, {
       httpOnly: true,
       secure: true,
-      sameSite: "Strict",
+      sameSite: "Lax",
       maxAge: 1 * 60 * 60 * 1000, // 1 hour
     });
 
