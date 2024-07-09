@@ -49,7 +49,10 @@ app.use(express.static(staticFilesPath));
 
 // Catch-all handler pour envoyer index.html pour toute requête non API
 app.get("*", (req, res) => {
-  const indexPath = path.join(staticFilesPath, "/backend/client/index.html");
+  const indexPath = path.join(
+    staticFilesPath,
+    "/backend/client/dist/index.html"
+  );
   res.sendFile(indexPath);
 });
 
