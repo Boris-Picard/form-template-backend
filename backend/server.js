@@ -43,8 +43,8 @@ app.use("/api/coin/", apiLimiter, coinRoutes);
 app.use("/api/transaction/", apiLimiter, transactionsRoutes);
 app.use("/api/auth/", authLimiter, authRoutes);
 
-// Servir les fichiers statiques de l'application React depuis le dossier `client/dist`
-const staticFilesPath = path.join(__dirname, "client/dist");
+// Servir les fichiers statiques de l'application React depuis le dossier 
+const staticFilesPath = path.join(__dirname, "/../../form-template/dist");
 console.log(`Serving static files from ${staticFilesPath}`);
 app.use(express.static(staticFilesPath));
 
