@@ -5,9 +5,11 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node server.js",
+    "start": "node backend/server.js",
     "dev": "nodemon backend/server.js",
-    "test": "jest"
+    "test": "jest",
+    "client": "npm start --prefix client",
+    "clientinstall": "npm install --prefix client"
   },
   "keywords": [],
   "author": "",
