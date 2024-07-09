@@ -44,12 +44,12 @@ app.use("/api/transaction/", apiLimiter, transactionsRoutes);
 app.use("/api/auth/", authLimiter, authRoutes);
 
 /// Servir les fichiers statiques de l'application React depuis le dossier `client/dist`
-const staticFilesPath = path.join(__dirname, "./client/dist");
+const staticFilesPath = path.join(__dirname, "/backend/client/dist");
 app.use(express.static(staticFilesPath));
 
 // Catch-all handler pour envoyer index.html pour toute requête non API
 app.get("*", (req, res) => {
-  const indexPath = path.join(staticFilesPath, "index.html");
+  const indexPath = path.join(staticFilesPath, "/backend/client/index.html");
   res.sendFile(indexPath);
 });
 
