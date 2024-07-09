@@ -1,140 +1,96 @@
-# Multi-Step Form Backend
+# myCryptoFolio - Backend
 
-## Overview
-
-This backend project complements the frontend part of the Multi-Step Form Project. It is designed to handle data persistence and API endpoint management using Node.js, Express, MongoDB, and Mongoose. The backend facilitates storing and retrieving transaction data and other necessary operations to support the frontend functionalities.
-
-## Objectives
-
-- **Node.js and Express Integration:** Utilize Node.js and Express to create a robust server-side application, handling API requests and managing routing.
-- **MongoDB with Mongoose:** Implement MongoDB for data persistence and Mongoose for object data modeling, ensuring seamless interaction between the server and the database.
-- **API Endpoints for Coins and Transactions:** Create and manage API endpoints to handle coins and transactions, supporting CRUD operations for the frontend application.
+This is the backend server for the myCryptoFolio application. It is built with Node.js, Express, and MongoDB.
 
 ## Features
+- **User Authentication:** Secure user registration and login with hashed passwords, JWT tokens, and cookies.
+- **Portfolio Management:** APIs to add, edit, and delete transactions for each cryptocurrency.
+- **Email Notifications:** Reset password and account verification through email using Nodemailer.
+- **Data Validation:** Uses Joi for data validation.
+- **Rate Limiting:** Protects APIs from excessive requests using express-rate-limit.
+- **Unit Testing:** Implements tests using Jest.
+- **Automatic Restart:** Uses Nodemon for automatic server restarts during development.
 
-- **CRUD Operations for Coins and Transactions:** Implement Create, Read, Update, and Delete operations for both coins and transactions.
-- **Data Validation and Error Handling:** Ensure data integrity with appropriate validation and provide clear error messages for failed operations.
-- **Modular and Maintainable Code:** Organize the backend code into modular components for better maintainability and scalability.
+## Technologies Used
+- **Node.js**
+- **Express**
+- **MongoDB**
+- **Mongoose**
+- **Express-rate-limit**
+- **Argon2**
+- **Cookie Parser**
+- **JSON Web Token**
+- **Nodemailer**
+- **Joi**
+- **Jest**
+- **Nodemon**
+
+## Installation
+
+1. Clone the repository:
+    ```bash
+    git clone https://github.com/boris-picard/mycryptofolio-backend.git
+    cd mycryptofolio-backend
+    ```
+
+2. Install dependencies:
+    ```bash
+    npm install
+    ```
+
+3. Create a `.env` file with the following content:
+    ```plaintext
+    MONGO_URI=your_mongo_db_uri
+    JWT_SECRET=your_jwt_secret
+    PORT=3001
+    EMAIL_USER=your_email
+    EMAIL_PASS=your_email_password
+    ```
+
+4. Run the development server:
+    ```bash
+    npm run dev
+    ```
+
+5. The server will start on `http://localhost:3001`.
 
 ## API Endpoints
 
-### Coin Endpoints
+### Auth Routes
+- `POST /api/auth/signup`: Register a new user.
+- `POST /api/auth/signin`: Login a user.
+- `POST /api/auth/refresh-token`: Refresh JWT token.
+- `POST /api/auth/resend-email`: Resend verification email.
+- `POST /api/auth/forgot-password`: Send reset password email.
+- `POST /api/auth/reset-password`: Reset password.
+- `GET /api/auth/user`: Get user details.
+- `GET /api/auth/verify-email`: Verify user email.
+- `DELETE /api/auth/logout`: Logout a user.
 
-1. **Create Coin**
+### Coin Routes
+- `POST /api/coins/createTransaction`: Create a new coin and transaction.
+- `GET /api/coins/detailed/:id`: Get detailed transactions for a coin.
+- `PUT /api/coins/:id`: Update a coin.
 
-   - **Method:** POST
-   - **Endpoint:** `/api/coin`
-   - **Description:** Create a new coin with a name.
-   - **Request Body:**
-     ```json
-     {
-       "name": "Bitcoin"
-     }
-     ```
-   - **Response:** Returns the created coin object.
+### Transaction Routes
+- `POST /api/transactions/name/:name`: Create a new transaction for a specific coin.
+- `GET /api/transactions/portfolio`: Get all coins in the portfolio.
+- `GET /api/transactions/id/:id`: Get a specific coin by ID.
+- `GET /api/transactions/name/:name`: Get a specific coin by name.
+- `PUT /api/transactions/id/:id`: Update a specific transaction.
+- `DELETE /api/transactions/:id`: Delete a coin and its transactions.
+- `DELETE /api/transactions/id/delete/:id`: Delete a specific transaction.
 
-2. **Add Transaction to Coin**
+## Scripts
 
-   - **Method:** POST
-   - **Endpoint:** `/api/coin/transaction`
-   - **Description:** Add a transaction to a specific coin.
-   - **Request Body:**
-     ```json
-     {
-       "coinId": "60d0fe4f5311236168a109ca",
-       "transactionData": {
-         "quantity": 1.5,
-         "price": 45000,
-         "spent": 67500,
-         "date": "2023-05-31"
-       }
-     }
-     ```
-   - **Response:** Returns the created transaction object.
+- `npm start`: Starts the production server.
+- `npm run dev`: Starts the development server with Nodemon.
+- `npm test`: Runs the test suite using Jest.
 
-### Transaction Endpoints
+## Contributing
 
-1. **Get All Transactions**
+Contributions are welcome! Please create a pull request with your changes.
 
-   - **Method:** GET
-   - **Endpoint:** `/api/transaction`
-   - **Description:** Retrieve a list of all transactions.
-   - **Response:** Returns an array of transaction objects.
+## License
 
-2. **Get Transaction by ID**
-
-   - **Method:** GET
-   - **Endpoint:** `/api/transaction/:id`
-   - **Description:** Retrieve details of a specific transaction by its ID.
-   - **Response:** Returns the transaction object.
-
-3. **Delete Transaction**
-
-   - **Method:** DELETE
-   - **Endpoint:** `/api/transaction/:id`
-   - **Description:** Delete a specific transaction by its ID.
-   - **Response:** Returns a success message upon successful deletion.
-
-## How to Run the Backend
-
-1. **Clone the Repository:**
-
-   ```bash
-   git clone https://github.com/your-username/form-template-backend.git
-   ```
-
-2. **Install Dependencies:**
-
-   ```bash
-   cd form-template-backend
-   npm install
-   ```
-
-3. **Set Up Environment Variables:**
-
-   Create a `.env` file in the root of your project and add the following environment variables:
-   ```
-   MONGODB=mongodb+srv://<username>:<password>@cluster0.mongodb.net/<database>?retryWrites=true&w=majority
-   PORT=3001
-   ```
-
-4. **Run the Development Server:**
-
-   ```bash
-   npm start
-   ```
-
-**Note:** Make sure MongoDB is running and accessible with the provided connection string.
-
-## Project Structure
-
-```
-form-template-backend/
-├── controllers/
-│   ├── coinController.js
-│   └── transactionsController.js
-├── models/
-│   ├── Coin.js
-│   └── Transaction.js
-├── routes/
-│   ├── coinRoutes.js
-│   └── transactionsRoutes.js
-├── .env
-├── server.js
-├── package.json
-└── README.md
-```
-
-- **controllers/**: Contains the logic for handling API requests.
-- **models/**: Contains the Mongoose models for database schemas.
-- **routes/**: Defines the routes for API endpoints.
-- **server.js**: The main entry point for the application.
-- **.env**: Environment variables for configuration.
-
-## Conclusion
-
-This backend project is essential for handling the data persistence and API management required by the frontend of the Multi-Step Form Project. By using Node.js, Express, MongoDB, and Mongoose, it ensures a robust and scalable server-side application, enabling efficient data operations and seamless integration with the frontend.
-
----
-
-By following these instructions, you should be able to set up and run the backend part of your Multi-Step Form Project successfully. This README provides a comprehensive guide to the backend structure, functionality, and setup process.
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
