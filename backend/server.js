@@ -43,13 +43,15 @@ app.use("/api/coin/", apiLimiter, coinRoutes);
 app.use("/api/transaction/", apiLimiter, transactionsRoutes);
 app.use("/api/auth/", authLimiter, authRoutes);
 
-// Use the client app
-app.use(express.static(path.join(__dirname, "client/dist")));
+/// Servir les fichiers statiques de l'application React depuis le dossier `client/dist`
+const staticFilesPath = path.join(__dirname, "client/dist");
+app.use(express.static(staticFilesPath));
 
-// Render client for any path
-app.use("*", (req, res) =>
-  res.sendFile(path.join(__dirname, "client/dist/index.html"))
-);
+// Catch-all handler pour envoyer index.html pour toute requête non API
+app.get("*", (req, res) => {
+  const indexPath = path.join(staticFilesPath, "index.html");
+  res.sendFile(indexPath);
+});
 
 // Gestion des erreurs pour les routes non trouvées
 app.use((req, res, next) => {
