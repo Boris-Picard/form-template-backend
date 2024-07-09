@@ -19,7 +19,7 @@ app.set("trust proxy", 1);
 
 // Configuration CORS
 const corsOptions = {
-  origin: ["https://mycryptofolio.site"],
+  origin: process.env.NODE_ENV === "production" ? ["https://mycryptofolio.site"] : ["http://localhost:5173"],
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   credentials: true,
   optionsSuccessStatus: 200,
