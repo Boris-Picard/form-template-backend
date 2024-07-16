@@ -275,13 +275,17 @@ export const deleteTransaction = async (req, res) => {
       $pull: { transactions: id },
     });
 
-    
+    const remainingTransactions = await Transaction.find({
+      coin: transaction.coin,
+      users: userId,
+    });
 
-    const coin = await Coin.findById(transaction.coin);
-    if (coin.transactions.length === 0) {
-      await Coin.findByIdAndDelete(coin._id);
+    if (remainingTransactions.length === 0) {
+      await Coin.findByIdAndUpdate(transaction.coin, {
+        $pull: { users: userId },
+      });
       await User.findByIdAndUpdate(userId, {
-        $pull: { coins: coin._id },
+        $pull: { coins: transaction.coin },
       });
     }
 
