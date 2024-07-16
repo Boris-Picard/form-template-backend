@@ -140,7 +140,7 @@ export const signIn = async (req, res) => {
     const refreshToken = await user.generateRefreshToken();
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: true,
       sameSite: "none",
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
@@ -148,7 +148,7 @@ export const signIn = async (req, res) => {
     const token = await user.generateToken();
     res.cookie("token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: true,
       sameSite: "none",
       maxAge: 1 * 60 * 60 * 1000, // 1 hour
     });
@@ -282,11 +282,20 @@ export const refreshToken = async (req, res) => {
     }
 
     const newToken = await user.generateToken();
+    const newRefreshToken = await user.generateRefreshToken();
+
     res.cookie("token", newToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: true,
       sameSite: "none",
       maxAge: 1 * 60 * 60 * 1000, // 1 hour
+    });
+
+    res.cookie("refreshToken", newRefreshToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "none",
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
 
     res.status(200).end();
