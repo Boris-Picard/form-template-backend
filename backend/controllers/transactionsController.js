@@ -36,7 +36,7 @@ export const createOnlyTransaction = async (req, res) => {
       return res.status(404).json({ error: "Coin not found!" });
     }
 
-    if (userId !== coin.users.toString()) {
+    if (!coin.users.includes(userId)) {
       return res.status(403).json({ error: "Permission denied" });
     }
 
@@ -275,11 +275,17 @@ export const deleteTransaction = async (req, res) => {
       $pull: { transactions: id },
     });
 
-    const coin = await Coin.findById(transaction.coin);
-    if (coin.transactions.length === 0) {
-      await Coin.findByIdAndDelete(coin._id);
+    const remainingTransactions = await Transaction.find({
+      coin: transaction.coin,
+      users: userId,
+    });
+
+    if (remainingTransactions.length === 0) {
+      await Coin.findByIdAndUpdate(transaction.coin, {
+        $pull: { users: userId },
+      });
       await User.findByIdAndUpdate(userId, {
-        $pull: { coins: coin._id },
+        $pull: { coins: transaction.coin },
       });
     }
 
