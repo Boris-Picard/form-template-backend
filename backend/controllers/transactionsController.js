@@ -275,6 +275,8 @@ export const deleteTransaction = async (req, res) => {
       $pull: { transactions: id },
     });
 
+    
+
     const coin = await Coin.findById(transaction.coin);
     if (coin.transactions.length === 0) {
       await Coin.findByIdAndDelete(coin._id);
