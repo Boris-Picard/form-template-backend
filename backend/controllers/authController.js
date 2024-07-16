@@ -227,7 +227,7 @@ export const resetPassword = async (req, res) => {
     await User.findByIdAndUpdate(decodedToken.id, {
       password: hash,
     });
-    
+
     return res.status(200).json({ message: "Password successfully reset !" });
   } catch (error) {
     res.status(500).json({ error: "Internal server error" });
@@ -256,8 +256,18 @@ export const getUser = async (req, res) => {
 
 export const logout = async (req, res) => {
   try {
-    res.clearCookie("token");
-    res.clearCookie("refreshToken");
+    res.clearCookie("token", {
+      httpOnly: true,
+      secure: true,
+      sameSite: "none",
+      path: "/",
+    });
+    res.clearCookie("refreshToken", {
+      httpOnly: true,
+      secure: true,
+      sameSite: "none",
+      path: "/",
+    });
     res.status(200).send("Logout successful");
   } catch (error) {
     res.status(500).json({ error: "Internal server error" });
