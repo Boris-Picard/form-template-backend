@@ -36,7 +36,7 @@ export const createOnlyTransaction = async (req, res) => {
       return res.status(404).json({ error: "Coin not found!" });
     }
 
-    if (userId !== coin.users.toString()) {
+    if (!coin.users.includes(userId)) {
       return res.status(403).json({ error: "Permission denied" });
     }
 
