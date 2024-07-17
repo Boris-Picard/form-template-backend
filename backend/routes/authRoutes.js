@@ -15,13 +15,14 @@ import authMail from "../middleware/mailAuthMiddleware.js";
 import {
   mailLimiter,
   resetPasswordLimiter,
+  authLimiter,
 } from "../middleware/rateLimitMiddleware.js";
 
 const router = express.Router();
 
-router.post("/signup", signUp);
+router.post("/signup", authLimiter, signUp);
 
-router.post("/signin", signIn);
+router.post("/signin", authLimiter, signIn);
 
 router.post("/refresh-token", refreshToken);
 
