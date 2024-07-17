@@ -7,7 +7,7 @@ import coinRoutes from "./routes/coinRoutes.js";
 import transactionsRoutes from "./routes/transactionsRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
 import cookieParser from "cookie-parser";
-import { authLimiter, apiLimiter } from "./middleware/rateLimitMiddleware.js";
+import { apiLimiter } from "./middleware/rateLimitMiddleware.js";
 
 // Charger les variables d'environnement à partir du fichier .env
 dotenv.config();
@@ -19,7 +19,10 @@ app.set("trust proxy", 1);
 
 // Configuration CORS
 const corsOptions = {
-  origin: process.env.NODE_ENV === "production" ? ["https://mycryptofolio.site"] : ["http://localhost:5173"],
+  origin:
+    process.env.NODE_ENV === "production"
+      ? ["https://mycryptofolio.site"]
+      : ["http://localhost:5173"],
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   credentials: true,
   optionsSuccessStatus: 200,
@@ -35,7 +38,7 @@ app.use(express.json());
 // Vos routes API
 app.use("/api/coin/", apiLimiter, coinRoutes);
 app.use("/api/transaction/", apiLimiter, transactionsRoutes);
-app.use("/api/auth/", authLimiter, authRoutes);
+app.use("/api/auth/", authRoutes);
 
 // Gestion des erreurs pour les routes non trouvées
 app.use((req, res, next) => {
