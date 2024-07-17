@@ -142,7 +142,7 @@ export const signIn = async (req, res) => {
       httpOnly: true,
       secure: true,
       sameSite:"Strict",
-      Domain: "localhost:5173",
+      Domain: process.env.NODE_ENV === "production" ? "https://mycryptofolio.site" : "http://localhost:5173",
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
 
@@ -151,7 +151,7 @@ export const signIn = async (req, res) => {
       httpOnly: true,
       secure: true,
       sameSite:"Strict",
-      Domain: "localhost:5173",
+      Domain: process.env.NODE_ENV === "production" ? "https://mycryptofolio.site" : "http://localhost:5173",
       maxAge: 1 * 60 * 60 * 1000, // 1 hour
     });
 
@@ -262,14 +262,14 @@ export const logout = async (req, res) => {
       httpOnly: true,
       secure: true,
       sameSite:"Strict",
-      Domain: "localhost:5173",
+      Domain: process.env.NODE_ENV === "production" ? "https://mycryptofolio.site" : "http://localhost:5173",
       path: "/",
     });
     res.clearCookie("refreshToken", {
       httpOnly: true,
       secure: true,
       sameSite:"Strict",
-      Domain: "localhost:5173",
+      Domain: process.env.NODE_ENV === "production" ? "https://mycryptofolio.site" : "http://localhost:5173",
       path: "/",
     });
     res.status(200).send("Logout successful");
@@ -302,7 +302,7 @@ export const refreshToken = async (req, res) => {
       httpOnly: true,
       secure: true,
       sameSite:"Strict",
-      Domain: "localhost:5173",
+      Domain: process.env.NODE_ENV === "production" ? "https://mycryptofolio.site" : "http://localhost:5173",
       maxAge: 1 * 60 * 60 * 1000, // 1 hour
     });
 
@@ -310,7 +310,7 @@ export const refreshToken = async (req, res) => {
       httpOnly: true,
       secure: true,
       sameSite:"Strict",
-      Domain: "localhost:5173",
+      Domain: process.env.NODE_ENV === "production" ? "https://mycryptofolio.site" : "http://localhost:5173",
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
 
