@@ -65,35 +65,6 @@ export const createCoinAndTransaction = async (req, res) => {
   }
 };
 
-// export const updateCoin = async (req, res) => {
-//   const { id } = req.params;
-//   const { name } = req.body;
-
-//   const { error: coinError } = coinSchema.validate(req.body);
-//   const { error: idError } = idSchema.validate({ id });
-
-//   if (coinError || idError) {
-//     return res.status(400).json({
-//       error: (coinError || idError).details[0].message,
-//     });
-//   }
-
-//   try {
-//     const coin = await Coin.findById(id);
-
-//     if (!coin) {
-//       return res.status(404).json({ error: "Coin not found" });
-//     }
-
-//     coin.name = name;
-//     await coin.save();
-
-//     res.status(200).json({ coin });
-//   } catch (error) {
-//     res.status(500).json({ error: error.message });
-//   }
-// };
-
 export const getDetailedTransactions = async (req, res) => {
   const { id } = req.params;
   const { id: idUser } = req.user;

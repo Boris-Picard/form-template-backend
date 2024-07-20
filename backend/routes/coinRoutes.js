@@ -1,6 +1,5 @@
 import express from "express";
 import {
-  // updateCoin,
   getDetailedTransactions,
   createCoinAndTransaction,
 } from "../controllers/coinController.js";
@@ -12,6 +11,5 @@ router.use(auth);
 
 router.post("/createTransaction", createCoinAndTransaction);
 router.get("/detailed/:id", getDetailedTransactions);
-// router.put("/:id", updateCoin);
 
 export default router;
